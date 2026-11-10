@@ -1291,6 +1291,13 @@
           <option value="g">g</option>
           <option value="μg">μg</option>
         </select>
+        <select class="font-pick" id="fontMass" onchange="updateLabel()">
+          <option value="">Font</option>
+          <option value="'IM Fell English SC', serif">Fell SC</option>
+          <option value="'IM Fell English', serif">Fell Eng.</option>
+          <option value="'Special Elite', serif">Typewriter</option>
+          <option value="Helvetica, Arial, sans-serif">Sans</option>
+        </select>
       </div>
     </div>
     <div class="control-group">
@@ -1316,6 +1323,13 @@
           <option value="mg" selected>mg</option>
           <option value="μg">μg</option>
           <option value="g">g</option>
+        </select>
+        <select class="font-pick" id="fontPillDose" onchange="updateLabel()">
+          <option value="">Font</option>
+          <option value="'IM Fell English SC', serif">Fell SC</option>
+          <option value="'IM Fell English', serif">Fell Eng.</option>
+          <option value="'Special Elite', serif">Typewriter</option>
+          <option value="Helvetica, Arial, sans-serif">Sans</option>
         </select>
       </div>
     </div>
@@ -1583,7 +1597,7 @@ const STATE_FIELDS = [
   'compoundSel','customCompoundInp',
   'concInp','concUnit','volInp','vehicleSel','customVehicleInp',
   'massInp','massUnit','purityInp',
-  'pillCountInp','pillDoseInp','pillDoseUnit',
+  'pillCountInp','pillDoseInp','pillDoseUnit','fontMass','fontPillDose',
   'prepDate','shelfLife','lotInp','storageTemp','storageTempSel','instructionsInp','instrPresetSel','instrTypeSel',
   'bottomLeftSel','bottomLeftCustom','bottomRightSel','bottomRightCustom',
   'labelSizeSel','customW','customH',
@@ -2114,8 +2128,10 @@ function updateLabel() {
   // Font pickers (fontCompound applied after innerHTML set below)
   applyFontPick('fontBrand', 'brandNameDisplay');
   applyFontPick('fontBrandSub', 'brandSubDisplay');
-  applyFontPick('fontConc', 'concDisplay', 'massDisplay', 'pillDoseDisplay');
-  applyFontPick('fontVolume', 'volDisplay', 'pillCountDisplay');
+  applyFontPick('fontConc', 'concDisplay');
+  applyFontPick('fontVolume', 'volDisplay');
+  applyFontPick('fontMass', 'massDisplay', 'purityDisplay');
+  applyFontPick('fontPillDose', 'pillDoseDisplay', 'pillCountDisplay');
   applyFontPickQuery('fontMeta', '.meta-val', '.meta-key');
   applyFontPickQuery('fontInstr', '.instr-display', '.storage-display');
   applyFontPick('fontFooterLeft', 'bottomTxtLeft');
