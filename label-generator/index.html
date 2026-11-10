@@ -445,6 +445,25 @@
     width: 100%;
   }
 
+  .input-font-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .input-font-row > input,
+  .input-font-row > select:not(.font-pick) {
+    flex: 1;
+    min-width: 0;
+    width: auto !important;
+  }
+  .font-pick {
+    flex-shrink: 0;
+    width: 88px !important;
+    font-size: 10px !important;
+    padding: 6px 4px !important;
+    color: #aaa !important;
+  }
+
   .control-group textarea {
     resize: vertical;
     min-height: 36px;
@@ -904,12 +923,30 @@
 
   <div class="control-group">
     <label>Brand Name</label>
-    <input type="text" id="brandNameInp" value="" placeholder="Placeholder" oninput="updateLabel()">
+    <div class="input-font-row">
+      <input type="text" id="brandNameInp" value="" placeholder="Placeholder" oninput="updateLabel()">
+      <select class="font-pick" id="fontBrand" onchange="updateLabel()">
+        <option value="">— Font —</option>
+        <option value="'IM Fell English SC', serif">Fell SC</option>
+        <option value="'IM Fell English', serif">Fell Eng.</option>
+        <option value="'Special Elite', serif">Typewriter</option>
+        <option value="Helvetica, Arial, sans-serif">Sans</option>
+      </select>
+    </div>
   </div>
 
   <div class="control-group">
     <label>Brand Subtext</label>
-    <input type="text" id="brandSubInp" value="" placeholder="Placeholder" oninput="updateLabel()">
+    <div class="input-font-row">
+      <input type="text" id="brandSubInp" value="" placeholder="Placeholder" oninput="updateLabel()">
+      <select class="font-pick" id="fontBrandSub" onchange="updateLabel()">
+        <option value="">— Font —</option>
+        <option value="'IM Fell English SC', serif">Fell SC</option>
+        <option value="'IM Fell English', serif">Fell Eng.</option>
+        <option value="'Special Elite', serif">Typewriter</option>
+        <option value="Helvetica, Arial, sans-serif">Sans</option>
+      </select>
+    </div>
   </div>
 
   <div class="control-group">
@@ -979,7 +1016,8 @@
 
     <div class="control-group">
       <label>Solute / Compound</label>
-      <select id="compoundSel" onchange="updateLabel()">
+      <div class="input-font-row">
+      <select id="compoundSel" onchange="updateLabel()" style="flex:1;min-width:0;width:auto!important">
         <optgroup label="HRT / Hormones">
           <option value="Estradiol Valerate">Estradiol Valerate</option>
           <option value="Estradiol Cypionate">Estradiol Cypionate</option>
@@ -1066,6 +1104,14 @@
         </optgroup>
         <option value="Custom...">Custom...</option>
       </select>
+      <select class="font-pick" id="fontCompound" onchange="updateLabel()">
+        <option value="">— Font —</option>
+        <option value="'IM Fell English SC', serif">Fell SC</option>
+        <option value="'IM Fell English', serif">Fell Eng.</option>
+        <option value="'Special Elite', serif">Typewriter</option>
+        <option value="Helvetica, Arial, sans-serif">Sans</option>
+      </select>
+      </div>
     </div>
 
     <div class="control-group" id="customCompoundGroup" style="display:none">
@@ -1088,6 +1134,13 @@
           <option value="% w/v">% w/v</option>
           <option value="% v/v">% v/v</option>
           <option value="U/mL">U/mL</option>
+        </select>
+        <select class="font-pick" id="fontConc" onchange="updateLabel()">
+          <option value="">— Font —</option>
+          <option value="'IM Fell English SC', serif">Fell SC</option>
+          <option value="'IM Fell English', serif">Fell Eng.</option>
+          <option value="'Special Elite', serif">Typewriter</option>
+          <option value="Helvetica, Arial, sans-serif">Sans</option>
         </select>
       </div>
     </div>
@@ -1253,16 +1306,25 @@
 
     <div class="control-group">
       <label>Left side</label>
-      <select id="bottomLeftSel" onchange="bottomBarUserEdited=true;handleBottomSel('left')">
-        <option value="Store as indicated" selected>Store as indicated</option>
-        <option value="Cool · Dark · Upright">Cool · Dark · Upright</option>
-        <option value="Store Below 25°C">Store Below 25°C</option>
-        <option value="Refrigerate 2–8°C">Refrigerate 2–8°C</option>
-        <option value="Keep Frozen">Keep Frozen</option>
-        <option value="Protect From Light">Protect From Light</option>
-        <option value="Shake Before Use">Shake Before Use</option>
-        <option value="Custom...">Custom...</option>
-      </select>
+      <div class="input-font-row">
+        <select id="bottomLeftSel" onchange="bottomBarUserEdited=true;handleBottomSel('left')">
+          <option value="Store as indicated" selected>Store as indicated</option>
+          <option value="Cool · Dark · Upright">Cool · Dark · Upright</option>
+          <option value="Store Below 25°C">Store Below 25°C</option>
+          <option value="Refrigerate 2–8°C">Refrigerate 2–8°C</option>
+          <option value="Keep Frozen">Keep Frozen</option>
+          <option value="Protect From Light">Protect From Light</option>
+          <option value="Shake Before Use">Shake Before Use</option>
+          <option value="Custom...">Custom...</option>
+        </select>
+        <select class="font-pick" id="fontFooterLeft" onchange="updateLabel()">
+          <option value="">— Font —</option>
+          <option value="'IM Fell English SC', serif">Fell SC</option>
+          <option value="'IM Fell English', serif">Fell Eng.</option>
+          <option value="'Special Elite', serif">Typewriter</option>
+          <option value="Helvetica, Arial, sans-serif">Sans</option>
+        </select>
+      </div>
     </div>
 
     <div class="control-group" id="bottomLeftCustomGroup" style="display:none">
@@ -1272,15 +1334,24 @@
 
     <div class="control-group">
       <label>Right side</label>
-      <select id="bottomRightSel" onchange="bottomBarUserEdited=true;handleBottomSel('right')">
-        <option value="Research Use Only" selected>Research Use Only</option>
-        <option value="Not for Clinical Use">Not for Clinical Use</option>
-        <option value="For Research Use Only">For Research Use Only</option>
-        <option value="Personal Use Only">Personal Use Only</option>
-        <option value="DIY Compounded">DIY Compounded</option>
-        <option value="Not for Resale">Not for Resale</option>
-        <option value="Custom...">Custom...</option>
-      </select>
+      <div class="input-font-row">
+        <select id="bottomRightSel" onchange="bottomBarUserEdited=true;handleBottomSel('right')">
+          <option value="Research Use Only" selected>Research Use Only</option>
+          <option value="Not for Clinical Use">Not for Clinical Use</option>
+          <option value="For Research Use Only">For Research Use Only</option>
+          <option value="Personal Use Only">Personal Use Only</option>
+          <option value="DIY Compounded">DIY Compounded</option>
+          <option value="Not for Resale">Not for Resale</option>
+          <option value="Custom...">Custom...</option>
+        </select>
+        <select class="font-pick" id="fontFooterRight" onchange="updateLabel()">
+          <option value="">— Font —</option>
+          <option value="'IM Fell English SC', serif">Fell SC</option>
+          <option value="'IM Fell English', serif">Fell Eng.</option>
+          <option value="'Special Elite', serif">Typewriter</option>
+          <option value="Helvetica, Arial, sans-serif">Sans</option>
+        </select>
+      </div>
     </div>
 
     <div class="control-group" id="bottomRightCustomGroup" style="display:none">
@@ -1422,6 +1493,7 @@ const STATE_KEY = 'vialLabelState';
 
 const STATE_FIELDS = [
   'brandNameInp','brandSubInp','accentColor','compoundColor',
+  'fontBrand','fontBrandSub','fontCompound','fontConc','fontFooterLeft','fontFooterRight',
   'compoundSel','customCompoundInp',
   'concInp','concUnit','volInp','vehicleSel','customVehicleInp',
   'massInp','massUnit','purityInp',
@@ -1890,8 +1962,27 @@ function handleBottomSel(side) {
 }
 
 
+// ===== FONT PICKERS =====
+function applyFontPick(pickerId, ...elementIds) {
+  const val = (document.getElementById(pickerId) || {}).value || '';
+  elementIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (val) el.style.setProperty('font-family', val, 'important');
+    else el.style.removeProperty('font-family');
+  });
+}
+
 // ===== UPDATE LABEL =====
 function updateLabel() {
+  // Font pickers
+  applyFontPick('fontBrand', 'brandNameDisplay');
+  applyFontPick('fontBrandSub', 'brandSubDisplay');
+  applyFontPick('fontCompound', 'compoundDisplay');
+  applyFontPick('fontConc', 'concDisplay', 'massDisplay', 'pillDoseDisplay');
+  applyFontPick('fontFooterLeft', 'bottomTxtLeft');
+  applyFontPick('fontFooterRight', 'bottomTxtRight');
+
   // Brand name and sub
   const brandName = document.getElementById('brandNameInp').value || 'Placeholder';
   const brandSub = document.getElementById('brandSubInp').value || '';
