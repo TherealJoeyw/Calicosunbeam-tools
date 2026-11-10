@@ -697,6 +697,24 @@
     font-style: italic;
   }
 
+  .page-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: -16px;
+    align-self: flex-start;
+  }
+  .page-nav a {
+    color: #666;
+    font-family: 'Special Elite', serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .page-nav a:hover { color: #bbb; }
+
   @media print {
     body {
       background: white;
@@ -723,11 +741,15 @@
   </div>
 </div>
 
+<div class="page-nav">
+  <a href="/tools/">← Tools</a>
+  <a href="/">Home</a>
+</div>
 <h1>Stock Solution Label Generator</h1>
 
 <!-- LIVE PREVIEW -->
 <div class="label-wrapper">
-  <div class="section-label">Label Preview (scaled for screen — prints at 55×32mm)</div>
+  <div class="section-label" id="previewLabel">Label Preview — prints at 55 × 32 mm</div>
   <div class="label-scale-wrap">
   <div class="vial-label" id="mainLabel">
 
@@ -935,6 +957,14 @@
           <input type="number" id="customH" value="32" min="10" max="200" step="0.5" style="flex:1" oninput="applyCustomSize()">
           <span style="color:#888;font-size:11px">mm</span>
         </div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Orientation</label>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="orientLandscape" onclick="setOrientation('landscape')">Landscape</button>
+        <button class="toggle-btn" id="orientPortrait" onclick="setOrientation('portrait')">Portrait</button>
       </div>
     </div>
 
@@ -1403,7 +1433,7 @@ const STATE_FIELDS = [
 ];
 
 function saveState() {
-  const state = { mode: currentMode, labelStyle: currentLabelStyle, bottomBarUserEdited, ghs: {} };
+  const state = { mode: currentMode, labelStyle: currentLabelStyle, bottomBarUserEdited, orientation: currentOrientation, ghs: {} };
   STATE_FIELDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) state[id] = el.value;
@@ -1472,6 +1502,13 @@ function restoreState() {
 
   // Label size
   handleSizeChange();
+  // Restore saved orientation (overrides auto-detect)
+  if (state.orientation) {
+    currentOrientation = state.orientation;
+    document.getElementById('orientLandscape').classList.toggle('active', state.orientation === 'landscape');
+    document.getElementById('orientPortrait').classList.toggle('active', state.orientation === 'portrait');
+    reapplyCurrentSize();
+  }
 
   // Preset dropdowns — show/hide custom inputs
   const instrPresetVal = document.getElementById('instrPresetSel').value;
@@ -2120,15 +2157,42 @@ function buildSizeSelect() {
   sel.value = CONFIG.defaultSize || '55x32';
 }
 
+let currentOrientation = 'landscape';
+
+function setOrientation(orient) {
+  currentOrientation = orient;
+  document.getElementById('orientLandscape').classList.toggle('active', orient === 'landscape');
+  document.getElementById('orientPortrait').classList.toggle('active', orient === 'portrait');
+  reapplyCurrentSize();
+  saveState();
+}
+
+function reapplyCurrentSize() {
+  const id = document.getElementById('labelSizeSel').value;
+  const preset = CONFIG.labelSizes.find(s => s.id === id);
+  if (preset && id !== 'custom') {
+    applySize(preset.w, preset.h, preset.scale);
+  } else {
+    applyCustomSize();
+  }
+}
+
 function applySize(w, h, scale) {
-  document.documentElement.style.setProperty('--label-w', w + 'mm');
-  document.documentElement.style.setProperty('--label-h', h + 'mm');
-  document.documentElement.style.setProperty('--scale', scale);
-  // Scale fonts and layout proportionally to label height (baseline 32mm)
-  const fs = Math.round((h / 32) * 100) / 100;
+  let lw = w, lh = h, ls = scale;
+  if ((currentOrientation === 'portrait' && lw > lh) ||
+      (currentOrientation === 'landscape' && lh > lw)) {
+    [lw, lh] = [lh, lw];
+    ls = Math.min(3.5, Math.max(1.0, Math.round((160 / lh) * 10) / 10));
+  }
+  document.documentElement.style.setProperty('--label-w', lw + 'mm');
+  document.documentElement.style.setProperty('--label-h', lh + 'mm');
+  document.documentElement.style.setProperty('--scale', ls);
+  const fs = Math.round((lh / 32) * 100) / 100;
   document.documentElement.style.setProperty('--fs', fs);
   document.documentElement.style.setProperty('--ls', fs);
-  document.getElementById('scaleNote').textContent = `${w} × ${h} mm`;
+  document.getElementById('scaleNote').textContent = `${lw} × ${lh} mm`;
+  const pl = document.getElementById('previewLabel');
+  if (pl) pl.textContent = `Label Preview — prints at ${lw} × ${lh} mm`;
 }
 
 function handleSizeChange() {
@@ -2137,6 +2201,10 @@ function handleSizeChange() {
   const isCustom = id === 'custom';
   document.getElementById('customSizeFields').style.display = isCustom ? '' : 'none';
   if (preset && !isCustom) {
+    const naturalOrient = preset.h > preset.w ? 'portrait' : 'landscape';
+    currentOrientation = naturalOrient;
+    document.getElementById('orientLandscape').classList.toggle('active', naturalOrient === 'landscape');
+    document.getElementById('orientPortrait').classList.toggle('active', naturalOrient === 'portrait');
     applySize(preset.w, preset.h, preset.scale);
   } else {
     applyCustomSize();
