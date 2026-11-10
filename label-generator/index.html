@@ -2474,17 +2474,21 @@ async function exportPng() {
   btn.textContent = 'Exporting…';
   btn.disabled = true;
   try {
-    // Render at 4× scale for crisp output
+    await document.fonts.ready;
+    // Convert mm clip-path corners to px so html2canvas handles them correctly
+    const wMm = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 55;
+    const cornerPx = (label.offsetWidth / wMm) * 2;
+    label.style.clipPath = `polygon(${cornerPx}px 0%,calc(100% - ${cornerPx}px) 0%,100% ${cornerPx}px,100% calc(100% - ${cornerPx}px),calc(100% - ${cornerPx}px) 100%,${cornerPx}px 100%,0% calc(100% - ${cornerPx}px),0% ${cornerPx}px)`;
     const canvas = await html2canvas(label, {
-      scale: 4,
+      scale: 8,
       useCORS: true,
       backgroundColor: null,
       logging: false,
     });
+    label.style.clipPath = '';
     const compound = document.getElementById('compoundDisplay').textContent.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
     const filename = `label_${compound || 'vial'}.png`;
     const dataUrl = canvas.toDataURL('image/png');
-    // Use artifact downloads API if available, else fall back to link
     if (window.claude && window.claude.downloads) {
       await window.claude.downloads.save({ filename, url: dataUrl });
     } else {
@@ -2494,6 +2498,7 @@ async function exportPng() {
       link.click();
     }
   } catch(e) {
+    label.style.clipPath = '';
     alert('Export failed: ' + e.message);
   } finally {
     btn.textContent = 'Export PNG';
