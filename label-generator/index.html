@@ -487,6 +487,53 @@
     color: #aaa !important;
   }
 
+  /* Custom font picker */
+  .font-pick-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .font-pick-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    width: 88px;
+    background: #2a2a2a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #eee;
+    font-size: 11px;
+    padding: 6px 7px;
+    cursor: pointer;
+    outline: none;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .font-pick-btn:focus, .font-pick-btn:hover { border-color: var(--accent); }
+  .font-pick-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .font-pick-arrow { flex-shrink: 0; color: #666; font-size: 8px; }
+  .font-pick-menu {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    min-width: 150px;
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 4px;
+    z-index: 300;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+  }
+  .font-pick-opt {
+    padding: 7px 11px;
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .font-pick-opt:hover, .font-pick-opt.active { background: #333; color: var(--accent); }
+  .font-pick-opt[data-val=""] { font-size: 10px; color: #666; letter-spacing: 0.05em; }
+
   .control-group textarea {
     resize: vertical;
     min-height: 36px;
@@ -922,15 +969,6 @@
 
 <!-- CONTROLS -->
 <div class="controls">
-
-  <!-- LABEL STYLE TOGGLE — full-width header -->
-  <div class="control-group" style="padding-bottom:12px;border-bottom:1px solid #444">
-    <label>Label Style</label>
-    <div class="toggle-row">
-      <button class="toggle-btn active" id="styleLab" onclick="setLabelStyle('lab')">Lab / Chemical</button>
-      <button class="toggle-btn" id="stylePharmacy" onclick="setLabelStyle('pharmacy')">Pharmacy / DIY</button>
-    </div>
-  </div>
 
   <div class="controls-cols">
 
@@ -1549,7 +1587,7 @@ const STATE_FIELDS = [
 ];
 
 function saveState() {
-  const state = { mode: currentMode, labelStyle: currentLabelStyle, bottomBarUserEdited, orientation: currentOrientation, ghs: {}, printerDots: document.getElementById('printerDotsToggle')?.checked || false };
+  const state = { mode: currentMode, bottomBarUserEdited, orientation: currentOrientation, ghs: {}, printerDots: document.getElementById('printerDotsToggle')?.checked || false };
   STATE_FIELDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) state[id] = el.value;
@@ -1586,8 +1624,6 @@ function restoreState() {
   // Mode
   if (state.mode) setMode(state.mode);
 
-  // Label style
-  if (state.labelStyle) setLabelStyle(state.labelStyle);
   if (state.bottomBarUserEdited) bottomBarUserEdited = true;
 
   // Logo
@@ -1686,85 +1722,12 @@ function setMode(mode) {
   updateLabel();
 }
 
-// ===== LABEL STYLE =====
-let currentLabelStyle = 'lab';
-
-const LABEL_STYLE_TEXT = {
-  lab: {
-    solvent:   'Matrix',
-    lot:       'Batch',
-    made:      'Prep. Date',
-    useBy:     'Expiry',
-    form:      'Form',
-    bottomL:   'Store as indicated',
-    bottomR:   'Research Use Only',
-  },
-  pharmacy: {
-    solvent:   'Solvent',
-    lot:       'Lot / Ref',
-    made:      'Made',
-    useBy:     'Use By',
-    form:      'Form',
-    bottomL:   'Cool · Dark · Upright',
-    bottomR:   'Not for Clinical Use',
-  },
-};
-
 // track whether user has manually changed the bottom bar
 let bottomBarUserEdited = false;
-
-function setLabelStyle(style) {
-  currentLabelStyle = style;
-  const label = document.getElementById('mainLabel');
-  label.classList.remove('style-lab', 'style-pharmacy');
-  label.classList.add('style-' + style);
-
-  // Update toggle buttons
-  document.getElementById('styleLab').classList.toggle('active', style === 'lab');
-  document.getElementById('stylePharmacy').classList.toggle('active', style === 'pharmacy');
-
-  const txt = LABEL_STYLE_TEXT[style];
-
-  // Update solvent label dropdown + label HTML
-  const solLabelSel = document.getElementById('solventLabelSel');
-  if (solLabelSel) setSelectToValue(solLabelSel, txt.solvent);
-  setMetaKeyText('solventKey',  txt.solvent);
-  setMetaKeyText('lotKey',      txt.lot);
-  setMetaKeyText('lotKeyP',     txt.lot);
-  setMetaKeyText('lotKeyPi',    txt.lot);
-  setMetaKeyText('madeKey',     txt.made);
-  setMetaKeyText('madeKeyP',    txt.made);
-  setMetaKeyText('madeKeyPi',   txt.made);
-  setMetaKeyText('useByKey',    txt.useBy);
-  setMetaKeyText('useByKeyP',   txt.useBy);
-  setMetaKeyText('useByKeyPi',  txt.useBy);
-
-  // Update bottom bar defaults only if user hasn't edited them
-  if (!bottomBarUserEdited) {
-    const leftSel  = document.getElementById('bottomLeftSel');
-    const rightSel = document.getElementById('bottomRightSel');
-    // Find or create matching option values
-    setSelectToValue(leftSel,  txt.bottomL);
-    setSelectToValue(rightSel, txt.bottomR);
-  }
-
-  updateLabel();
-  saveState();
-}
 
 function setMetaKeyText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
-}
-
-function setSelectToValue(sel, value) {
-  // Try to find the option; if not found fall back to first option
-  for (let i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].value === value) {
-      sel.value = value;
-      return;
-    }
-  }
 }
 
 // ===== ACCENT COLOUR =====
@@ -2016,6 +1979,109 @@ function handleBottomSel(side) {
   document.getElementById(grpId).style.display = val === 'Custom...' ? '' : 'none';
 }
 
+
+// ===== CUSTOM FONT PICKERS =====
+const LABEL_FONTS = [
+  { val: '', label: '— Font —' },
+  { val: "'IM Fell English SC', serif", label: 'Fell SC' },
+  { val: "'IM Fell English', serif",    label: 'Fell Eng.' },
+  { val: "'Special Elite', serif",      label: 'Typewriter' },
+  { val: 'Helvetica, Arial, sans-serif', label: 'Sans' },
+];
+
+function initFontPicker(selectEl) {
+  const id = selectEl.id;
+
+  const hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.id = id;
+  hidden.value = selectEl.value || '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'font-pick-wrap';
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'font-pick-btn';
+  const labelSpan = document.createElement('span');
+  labelSpan.className = 'font-pick-label';
+  const arrow = document.createElement('span');
+  arrow.className = 'font-pick-arrow';
+  arrow.textContent = '▾';
+  btn.appendChild(labelSpan);
+  btn.appendChild(arrow);
+
+  const menu = document.createElement('div');
+  menu.className = 'font-pick-menu';
+  menu.style.display = 'none';
+
+  function pickFont(f) {
+    hidden.value = f.val;
+    labelSpan.textContent = f.label;
+    labelSpan.style.fontFamily = f.val || '';
+    menu.style.display = 'none';
+    menu.querySelectorAll('.font-pick-opt').forEach(o =>
+      o.classList.toggle('active', o.dataset.val === f.val)
+    );
+    updateLabel();
+    saveState();
+  }
+
+  LABEL_FONTS.forEach(f => {
+    const opt = document.createElement('div');
+    opt.className = 'font-pick-opt';
+    opt.dataset.val = f.val;
+    if (f.val) opt.style.fontFamily = f.val;
+    opt.textContent = f.label;
+    opt.addEventListener('click', () => pickFont(f));
+    menu.appendChild(opt);
+  });
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = menu.style.display !== 'none';
+    document.querySelectorAll('.font-pick-menu').forEach(m => { m.style.display = 'none'; });
+    if (!open) menu.style.display = '';
+  });
+
+  // Set initial label
+  const init = LABEL_FONTS.find(f => f.val === hidden.value) || LABEL_FONTS[0];
+  labelSpan.textContent = init.label;
+  labelSpan.style.fontFamily = init.val || '';
+  menu.querySelectorAll('.font-pick-opt').forEach(o =>
+    o.classList.toggle('active', o.dataset.val === hidden.value)
+  );
+
+  wrap.appendChild(hidden);
+  wrap.appendChild(btn);
+  wrap.appendChild(menu);
+  selectEl.replaceWith(wrap);
+}
+
+function initAllFontPickers() {
+  document.querySelectorAll('select.font-pick').forEach(initFontPicker);
+}
+
+function syncFontPickerUIs() {
+  document.querySelectorAll('.font-pick-wrap').forEach(wrap => {
+    const hidden = wrap.querySelector('input[type="hidden"]');
+    if (!hidden) return;
+    const val = hidden.value || '';
+    const f = LABEL_FONTS.find(x => x.val === val) || LABEL_FONTS[0];
+    const labelSpan = wrap.querySelector('.font-pick-label');
+    if (labelSpan) {
+      labelSpan.textContent = f.label;
+      labelSpan.style.fontFamily = f.val || '';
+    }
+    wrap.querySelectorAll('.font-pick-opt').forEach(o =>
+      o.classList.toggle('active', o.dataset.val === val)
+    );
+  });
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.font-pick-menu').forEach(m => { m.style.display = 'none'; });
+});
 
 // ===== PRINTER DOT OBFUSCATION =====
 // DocuColor-style 15×8 tile, fully randomised — no real serial number encoded.
@@ -2476,12 +2542,11 @@ if (CONFIG.logoPlaceholder && CONFIG.logoPlaceholder.trim().startsWith('data:'))
 
 buildGhsControls();
 buildSizeSelect();
-
-// Apply lab style as default before restoring (restoreState may override)
-setLabelStyle('lab');
+initAllFontPickers();
 
 // Restore saved state (overrides CONFIG defaults if present)
 restoreState();
+syncFontPickerUIs();
 
 updateLabel();
 initSwatches();
