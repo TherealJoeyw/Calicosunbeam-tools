@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Solution Label Generator — calicosunbeam.org</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&display=swap');
+
+  .vial-label, .vial-label * {
+    font-family: Helvetica, Arial, sans-serif !important;
+  }
+
+  :root {
+    --accent: #FF6600;
+    --accent-light: #ff8533;
+    --compound-color: #FF6600;
+    --black: #111;
+    --white: #fff;
+    --label-w: 55mm;
+    --label-h: 32mm;
+    --scale: 2.8;
+    --fs: 1;      /* font scale — 1 = baseline 32mm height */
+    --ls: 1;      /* layout scale — scales mm structural sizes */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #2a2a2a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 32px;
+    font-family: 'Special Elite', serif;
+  }
+
+  h1 {
+    color: #ccc;
+    font-family: 'Special Elite', serif;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+
+  .section-label {
+    color: #888;
+    font-family: 'Special Elite', serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  /* ===== LABEL PREVIEW ===== */
+  .label-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .label-scale-wrap {
+    transform: scale(var(--scale));
+    transform-origin: top center;
+    margin-bottom: calc(var(--label-h) * (var(--scale) - 1));
+  }
+
+  /* ===== VIAL LABEL ===== */
+  .vial-label {
+    width: var(--label-w);
+    height: var(--label-h);
+    background: var(--white);
+    border: 1.5px solid var(--accent);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: calc(6.5mm * var(--ls)) calc(3.5mm * var(--ls)) calc(5mm * var(--ls)) calc(3.5mm * var(--ls));
+    gap: 0;
+    clip-path: polygon(2mm 0%, calc(100% - 2mm) 0%, 100% 2mm, 100% calc(100% - 2mm), calc(100% - 2mm) 100%, 2mm 100%, 0% calc(100% - 2mm), 0% 2mm);
+  }
+
+  .label-topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: calc(5.5mm * var(--ls));
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 calc(3mm * var(--ls));
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+  }
+
+  .logo-img {
+    width: calc(14px * var(--fs));
+    height: calc(18px * var(--fs));
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  /* Placeholder shown when no logo uploaded */
+  .logo-placeholder {
+    width: calc(14px * var(--fs));
+    height: calc(18px * var(--fs));
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-placeholder svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0.5;
+  }
+
+  .brand-name {
+    font-family: 'IM Fell English SC', serif !important;
+    font-size: calc(7.5px * var(--fs));
+    color: var(--white);
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+
+  .brand-sub {
+    font-family: 'Special Elite', serif !important;
+    font-size: calc(4.5px * var(--fs));
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* ===== LABEL STYLE VARIANTS ===== */
+
+  /* LAB style (default) — clean sans-serif, all-caps compound name */
+  .vial-label.style-lab {
+    border-color: var(--accent);
+    border-width: 1px;
+  }
+  .vial-label.style-lab .label-topbar {
+    background: var(--accent);
+  }
+  .vial-label.style-lab .bottom-bar {
+    background: var(--accent);
+  }
+  .vial-label.style-lab .brand-name {
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .vial-label.style-lab .brand-sub {
+    font-family: Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.18em;
+  }
+  .vial-label.style-lab .compound-name {
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-weight: 700;
+    font-size: calc(10px * var(--fs));
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .vial-label.style-lab .compound-name em {
+    font-style: normal;
+    color: var(--compound-color);
+  }
+  .vial-label.style-pharmacy .ghs-inline-row,
+  .vial-label.style-pharmacy .ghs-row { display: none !important; }
+  .vial-label.style-lab .concentration-big {
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .vial-label.style-lab .volume-txt {
+    font-family: Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.03em;
+  }
+  .vial-label.style-lab .meta-key {
+    font-family: Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.12em;
+  }
+  .vial-label.style-lab .meta-val {
+    font-family: Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.02em;
+  }
+  .vial-label.style-lab .bottom-txt {
+    font-family: Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.15em;
+  }
+  .vial-label.style-lab .instr-display,
+  .vial-label.style-lab .storage-display {
+    font-family: Helvetica, Arial, sans-serif !important;
+  }
+
+  /* PHARMACY style — the original serif/apothecary look */
+  .vial-label.style-pharmacy {
+    border-color: var(--accent);
+    border-width: 1.5px;
+  }
+  .vial-label.style-pharmacy .label-topbar {
+    background: var(--accent);
+  }
+  .vial-label.style-pharmacy .bottom-bar {
+    background: var(--accent);
+  }
+  /* pharmacy inherits all the original serif rules — no overrides needed */
+
+  .label-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+  }
+
+  .compound-name-row {
+    position: relative;
+  }
+
+  .compound-name {
+    font-family: 'IM Fell English', serif !important;
+    font-size: calc(11px * var(--fs));
+    font-weight: normal;
+    color: var(--black);
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+  }
+
+  .compound-name em {
+    font-style: italic;
+    color: var(--compound-color);
+  }
+
+  .ghs-inline-row {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.5mm;
+    align-items: center;
+    justify-content: flex-end;
+    max-width: 60%;
+    pointer-events: none;
+  }
+
+  .ghs-inline-icon {
+    flex: 0 1 calc(8mm * var(--ls));
+    min-width: calc(3mm * var(--ls));
+    aspect-ratio: 1;
+  }
+
+  .ghs-inline-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .concentration-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 0.3mm;
+  }
+
+  .concentration-big {
+    font-family: 'IM Fell English SC', serif !important;
+    font-size: calc(10px * var(--fs));
+    color: var(--black);
+    letter-spacing: 0.03em;
+  }
+
+  .concentration-sep {
+    width: 1px;
+    height: calc(8px * var(--fs));
+    background: #bbb;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 1px;
+  }
+
+  .volume-txt {
+    font-family: 'Special Elite', serif !important;
+    font-size: calc(7.5px * var(--fs));
+    color: #555;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    width: 100%;
+    height: 0.5px;
+    background: #ddd;
+    margin: 1mm 0;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5mm 2mm;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2mm;
+  }
+
+  .meta-key {
+    font-family: 'Special Elite', serif !important;
+    font-size: calc(4px * var(--fs));
+    color: #999;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .meta-val {
+    font-family: 'Special Elite', serif !important;
+    font-size: calc(6.5px * var(--fs));
+    color: var(--black);
+    letter-spacing: 0.05em;
+  }
+
+  .ghs-row {
+    display: flex;
+    gap: 1mm;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0.5mm;
+  }
+
+  .ghs-icon {
+    width: 5.5mm;
+    height: 5.5mm;
+    flex-shrink: 0;
+  }
+
+  .ghs-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: calc(4mm * var(--ls));
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .bottom-txt {
+    font-family: 'Special Elite', serif !important;
+    font-size: calc(4px * var(--fs));
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .bottom-dot {
+    width: calc(2px * var(--fs));
+    height: calc(2px * var(--fs));
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+  }
+
+  .instr-display {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: calc(5px * var(--fs));
+    color: #333;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .storage-display {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: calc(5px * var(--fs));
+    color: #555;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ===== CONTROLS PANEL ===== */
+  .controls {
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 20px;
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .controls-section {
+    border-top: 1px solid #444;
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .control-group label {
+    font-size: 10px;
+    color: #aaa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .control-group input[type="text"],
+  .control-group input[type="number"],
+  .control-group input[type="date"],
+  .control-group select,
+  .control-group textarea {
+    background: #2a2a2a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #eee;
+    font-family: 'Special Elite', serif;
+    font-size: 12px;
+    padding: 6px 8px;
+    outline: none;
+    width: 100%;
+  }
+
+  .control-group textarea {
+    resize: vertical;
+    min-height: 36px;
+  }
+
+  .control-group input:focus,
+  .control-group select:focus,
+  .control-group textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .file-upload-area {
+    background: #2a2a2a;
+    border: 1px dashed #555;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .file-upload-area:hover {
+    border-color: var(--accent);
+  }
+
+  .file-upload-area input[type="file"] {
+    display: none;
+  }
+
+  .upload-label {
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: block;
+  }
+
+  .upload-preview {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: none;
+    margin: 4px auto 0;
+    border-radius: 3px;
+    background: #3a3a3a;
+  }
+
+  .color-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .color-row input[type="color"] {
+    width: 36px;
+    height: 28px;
+    border: 1px solid #555;
+    border-radius: 3px;
+    background: none;
+    padding: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .color-row span {
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 0.05em;
+  }
+
+  .swatch-section {
+    margin-top: 10px;
+  }
+
+  .swatch-row-label {
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  .swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    transition: transform 0.1s, border-color 0.15s;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .swatch:hover {
+    transform: scale(1.15);
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  .swatch[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #ccc;
+    font-family: 'Special Elite', serif;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .swatch.empty {
+    border-style: dashed;
+    border-color: #444;
+    cursor: default;
+    background: transparent !important;
+  }
+
+  .swatch.empty:hover {
+    transform: none;
+    border-color: #444;
+  }
+
+  .ghs-check-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+  }
+
+  .ghs-check-item input { display: none; }
+
+  .ghs-check-item svg,
+  .ghs-check-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    border: 2px solid #444;
+    padding: 2px;
+    background: #2a2a2a;
+    opacity: 0.4;
+    transition: border-color 0.15s, background 0.15s, opacity 0.15s, box-shadow 0.15s;
+  }
+
+  .ghs-check-item:hover svg,
+  .ghs-check-item:hover img {
+    opacity: 0.7;
+    border-color: #666;
+  }
+
+  .ghs-check-item input:checked + svg,
+  .ghs-check-item input:checked + img {
+    border-color: var(--accent);
+    background: #fff;
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .ghs-check-item span {
+    font-size: 8px;
+    color: #888;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  .toggle-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #888;
+    font-family: 'Special Elite', serif;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 6px 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .toggle-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .toggle-btn:hover:not(.active) {
+    background: #444;
+    color: #bbb;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    flex: 1;
+    background: var(--accent);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-family: 'Special Elite', serif;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .btn:hover { background: var(--accent-light); }
+
+  .btn.secondary {
+    background: #444;
+    color: #ccc;
+  }
+  .btn.secondary:hover { background: #555; }
+
+  .scale-note {
+    font-family: 'Special Elite', serif;
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 0.05em;
+    text-align: center;
+    font-style: italic;
+  }
+
+  .help-note {
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 0.04em;
+    font-style: italic;
+  }
+
+  @media print {
+    body {
+      background: white;
+      padding: 0;
+    }
+    .controls, h1, .section-label, .scale-note {
+      display: none !important;
+    }
+    .vial-label {
+      break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Disclaimer modal -->
+<div id="disclaimerOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1e1e1e;border:1px solid #555;border-radius:10px;max-width:480px;width:100%;padding:28px;color:#ccc;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6">
+    <h2 style="margin:0 0 14px;color:#eee;font-size:16px;letter-spacing:0.05em">Disclaimer</h2>
+    <p style="margin:0 0 12px">This tool is provided for health &amp; safety and harm reduction purposes only. calicosunbeam.org does not condone or condemn the preparation or use of any substance. The default compounds and routes included in this tool are provided for convenience and do not imply endorsement of their use. Labels generated here are intended to reduce risk through accurate identification and storage information. Use responsibly and in accordance with applicable laws.</p>
+    <p style="margin:0 0 20px;color:#aaa"><strong style="color:#ccc">TL;DR:</strong> A label maker. Use it however you like — just make things safer, not more dangerous.</p>
+    <button onclick="document.getElementById('disclaimerOverlay').style.display='none'" style="background:var(--accent,#FF6600);color:#fff;border:none;border-radius:5px;padding:10px 24px;font-size:13px;cursor:pointer;letter-spacing:0.05em;width:100%">I understand — continue</button>
+  </div>
+</div>
+
+<h1>Stock Solution Label Generator</h1>
+
+<!-- LIVE PREVIEW -->
+<div class="label-wrapper">
+  <div class="section-label">Label Preview (scaled for screen — prints at 55×32mm)</div>
+  <div class="label-scale-wrap">
+  <div class="vial-label" id="mainLabel">
+
+    <div class="label-topbar" id="topbarEl">
+      <div class="logo-row">
+        <div class="logo-placeholder" id="logoPlaceholder"></div>
+        <img src="" class="logo-img" id="logoImg" style="display:none" alt="Brand logo">
+        <div>
+          <div class="brand-name" id="brandNameDisplay">Your Brand</div>
+          <div class="brand-sub" id="brandSubDisplay">subtext here</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="label-body">
+      <div class="compound-name-row">
+        <div class="compound-name" id="compoundDisplay">
+          <em>Estradiol Valerate</em>
+        </div>
+        <div class="ghs-inline-row" id="ghsInlineRow"></div>
+      </div>
+
+      <!-- LIQUID fields -->
+      <div id="liquidLabelFields">
+        <div class="concentration-row">
+          <span class="concentration-big" id="concDisplay">0.5 M</span>
+          <span class="concentration-sep"></span>
+          <span class="volume-txt" id="volDisplay">10 mL</span>
+        </div>
+        <div class="divider"></div>
+        <div class="meta-grid" id="metaGridL">
+          <div class="meta-item" id="vehicleMetaItem">
+            <span class="meta-key" id="solventKey">Matrix</span>
+            <span class="meta-val" id="vehicleDisplay">Water (deionised)</span>
+          </div>
+          <div class="meta-item" id="lotMetaItem" style="display:none">
+            <span class="meta-key" id="lotKey">Batch</span>
+            <span class="meta-val" id="lotDisplay"></span>
+          </div>
+          <div class="meta-item" id="prepMetaItem" style="display:none">
+            <span class="meta-key" id="madeKey">Prep. Date</span>
+            <span class="meta-val" id="prepDisplay"></span>
+          </div>
+          <div class="meta-item" id="expMetaItem" style="display:none">
+            <span class="meta-key" id="useByKey">Expiry</span>
+            <span class="meta-val" id="expDisplay"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POWDER fields -->
+      <div id="powderLabelFields" style="display:none">
+        <div class="concentration-row">
+          <span class="concentration-big" id="massDisplay">500 mg</span>
+          <span class="concentration-sep"></span>
+          <span class="volume-txt" id="purityDisplay">Powder</span>
+        </div>
+        <div class="divider"></div>
+        <div class="meta-grid" id="metaGridP">
+          <div class="meta-item">
+            <span class="meta-key">Form</span>
+            <span class="meta-val">Powder</span>
+          </div>
+          <div class="meta-item" id="lotMetaItemP" style="display:none">
+            <span class="meta-key" id="lotKeyP">Batch</span>
+            <span class="meta-val" id="lotDisplayP"></span>
+          </div>
+          <div class="meta-item" id="prepMetaItemP" style="display:none">
+            <span class="meta-key" id="madeKeyP">Prep. Date</span>
+            <span class="meta-val" id="prepDisplayP"></span>
+          </div>
+          <div class="meta-item" id="expMetaItemP" style="display:none">
+            <span class="meta-key" id="useByKeyP">Expiry</span>
+            <span class="meta-val" id="expDisplayP"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PILLS fields -->
+      <div id="pillsLabelFields" style="display:none">
+        <div class="concentration-row">
+          <span class="concentration-big" id="pillDoseDisplay">2 mg</span>
+          <span class="concentration-sep"></span>
+          <span class="volume-txt" id="pillCountDisplay">× 30</span>
+        </div>
+        <div class="divider"></div>
+        <div class="meta-grid" id="metaGridPi">
+          <div class="meta-item">
+            <span class="meta-key">Form</span>
+            <span class="meta-val">Oral</span>
+          </div>
+          <div class="meta-item" id="lotMetaItemPi" style="display:none">
+            <span class="meta-key" id="lotKeyPi">Batch</span>
+            <span class="meta-val" id="lotDisplayPi"></span>
+          </div>
+          <div class="meta-item" id="prepMetaItemPi" style="display:none">
+            <span class="meta-key" id="madeKeyPi">Prep. Date</span>
+            <span class="meta-val" id="prepDisplayPi"></span>
+          </div>
+          <div class="meta-item" id="expMetaItemPi" style="display:none">
+            <span class="meta-key" id="useByKeyPi">Expiry</span>
+            <span class="meta-val" id="expDisplayPi"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions + storage temp row (side by side) -->
+    <div id="instrStorageRow" style="display:none;align-items:center;justify-content:space-between;gap:1mm;margin-top:0.8mm">
+      <div id="instructionsDisplay" class="instr-display"><span id="instrPrefixDisplay" style="opacity:0.6;margin-right:0.3mm"></span><span id="instrTextDisplay"></span></div>
+      <div id="storageDisplay" class="storage-display"></div>
+    </div>
+
+
+
+    <div class="bottom-bar" id="bottomBarEl">
+      <span class="bottom-txt" id="bottomTxtLeft">Cool · Dark · Upright</span>
+      <span class="bottom-dot" id="bottomDot"></span>
+      <span class="bottom-txt" id="bottomTxtRight">Not for clinical use</span>
+    </div>
+
+  </div>
+  </div>
+  <div class="scale-note" id="scaleNote">55 × 32 mm — fits ~quarter of 10mL vial circumference</div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+
+  <!-- LABEL STYLE TOGGLE -->
+  <div class="control-group" style="padding-bottom:4px;border-bottom:1px solid #333;margin-bottom:4px">
+    <label>Label Style</label>
+    <div class="toggle-row">
+      <button class="toggle-btn active" id="styleLab" onclick="setLabelStyle('lab')">Lab / Chemical</button>
+      <button class="toggle-btn" id="stylePharmacy" onclick="setLabelStyle('pharmacy')">Pharmacy / DIY</button>
+    </div>
+  </div>
+
+  <!-- BRAND SECTION -->
+  <div class="section-label" style="margin-bottom:0">Brand</div>
+
+  <div class="control-group">
+    <label>Logo Image</label>
+    <div class="file-upload-area" onclick="document.getElementById('logoFile').click()">
+      <input type="file" id="logoFile" accept="image/*" onchange="handleLogoUpload(event)">
+      <span class="upload-label" id="uploadLabel">Click to upload logo (PNG/SVG with transparency works best)</span>
+      <img src="" id="uploadPreview" class="upload-preview" alt="Logo preview">
+    </div>
+    <button class="btn" id="clearLogoBtn" onclick="clearLogo()" style="display:none;margin-top:6px">Clear Logo</button>
+    <div class="help-note">Logo will be shown as uploaded. Use a white/light PNG on transparent background for best results on the dark bar. The placeholder colour inverts automatically with the accent colour.</div>
+  </div>
+
+  <div class="control-group">
+    <label>Brand Name</label>
+    <input type="text" id="brandNameInp" value="" placeholder="Placeholder" oninput="updateLabel()">
+  </div>
+
+  <div class="control-group">
+    <label>Brand Subtext</label>
+    <input type="text" id="brandSubInp" value="" placeholder="Placeholder" oninput="updateLabel()">
+  </div>
+
+  <div class="control-group">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <label style="display:block;margin-bottom:4px">Accent</label>
+        <div class="color-row">
+          <input type="color" id="accentColor" value="" oninput="updateAccentColor()">
+          <span style="font-size:10px;color:#888">Bars &amp; border</span>
+        </div>
+        <div class="swatch-section" style="margin-top:6px">
+          <div class="swatch-row-label">Presets</div>
+          <div class="swatch-row" id="joeySwatches"></div>
+          <div class="swatch-row-label">Recent</div>
+          <div class="swatch-row" id="recentSwatches"></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <label style="display:block;margin-bottom:4px">Substance Text</label>
+        <div class="color-row">
+          <input type="color" id="compoundColor" value="#FF6600" oninput="updateCompoundColor()">
+          <span style="font-size:10px;color:#888">Compound name</span>
+        </div>
+        <div class="swatch-section" style="margin-top:6px">
+          <div class="swatch-row-label">Presets</div>
+          <div class="swatch-row" id="joeySwatchesCompound"></div>
+          <div class="swatch-row-label">Recent</div>
+          <div class="swatch-row" id="recentSwatchesCompound"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LABEL CONTENT SECTION -->
+  <div class="controls-section">
+    <div class="section-label" style="margin-bottom:0">Label Content</div>
+
+    <div class="control-group">
+      <label>Label Size</label>
+      <select id="labelSizeSel" onchange="handleSizeChange()"></select>
+      <div id="customSizeFields" style="display:none;margin-top:6px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" id="customW" value="55" min="10" max="200" step="0.5" style="flex:1" oninput="applyCustomSize()">
+          <span style="color:#888;font-size:11px">×</span>
+          <input type="number" id="customH" value="32" min="10" max="200" step="0.5" style="flex:1" oninput="applyCustomSize()">
+          <span style="color:#888;font-size:11px">mm</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Mode</label>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="modeLiquid" onclick="setMode('liquid')">Liquid</button>
+        <button class="toggle-btn" id="modePowder" onclick="setMode('powder')">Powder</button>
+        <button class="toggle-btn" id="modePills" onclick="setMode('pills')">Items</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Solute / Compound</label>
+      <select id="compoundSel" onchange="updateLabel()">
+        <optgroup label="HRT / Hormones">
+          <option value="Estradiol Valerate">Estradiol Valerate</option>
+          <option value="Estradiol Cypionate">Estradiol Cypionate</option>
+          <option value="Estradiol Enanthate">Estradiol Enanthate</option>
+          <option value="Estradiol Benzoate">Estradiol Benzoate</option>
+          <option value="Testosterone Enanthate">Testosterone Enanthate</option>
+          <option value="Testosterone Cypionate">Testosterone Cypionate</option>
+          <option value="Testosterone Propionate">Testosterone Propionate</option>
+          <option value="Progesterone">Progesterone</option>
+          <option value="Bicalutamide">Bicalutamide</option>
+          <option value="Spironolactone">Spironolactone</option>
+          <option value="Anastrozole">Anastrozole</option>
+          <option value="Finasteride">Finasteride</option>
+          <option value="Nandrolone Decanoate">Nandrolone Decanoate</option>
+        </optgroup>
+        <optgroup label="Peptides">
+          <option value="BPC-157">BPC-157</option>
+          <option value="TB-500">TB-500</option>
+          <option value="Semaglutide">Semaglutide</option>
+          <option value="Tirzepatide">Tirzepatide</option>
+          <option value="Melanotan II">Melanotan II</option>
+          <option value="PT-141">PT-141</option>
+          <option value="Ipamorelin">Ipamorelin</option>
+          <option value="CJC-1295">CJC-1295</option>
+          <option value="Oxytocin">Oxytocin</option>
+          <option value="Epithalon">Epithalon</option>
+        </optgroup>
+        <optgroup label="ADHD Medications">
+          <option value="Methylphenidate">Methylphenidate</option>
+          <option value="Dextroamphetamine">Dextroamphetamine</option>
+          <option value="Mixed Amphetamine Salts">Mixed Amphetamine Salts</option>
+          <option value="Lisdexamfetamine">Lisdexamfetamine</option>
+          <option value="Atomoxetine">Atomoxetine</option>
+          <option value="Modafinil">Modafinil</option>
+          <option value="Guanfacine">Guanfacine</option>
+        </optgroup>
+        <optgroup label="SERMs &amp; Related">
+          <option value="Tamoxifen">Tamoxifen</option>
+          <option value="Raloxifene">Raloxifene</option>
+          <option value="Clomiphene">Clomiphene</option>
+          <option value="Toremifene">Toremifene</option>
+          <option value="Enclomiphene">Enclomiphene</option>
+        </optgroup>
+        <optgroup label="Other Medications">
+          <option value="Naltrexone">Naltrexone</option>
+          <option value="Metformin">Metformin</option>
+          <option value="Ketamine">Ketamine</option>
+          <option value="Diazepam">Diazepam</option>
+          <option value="Ondansetron">Ondansetron</option>
+        </optgroup>
+        <optgroup label="OTC &amp; Supplements">
+          <option value="Melatonin">Melatonin</option>
+          <option value="Vitamin B12">Vitamin B12</option>
+          <option value="Vitamin D3">Vitamin D3</option>
+          <option value="Iron Dextran">Iron Dextran</option>
+          <option value="Magnesium Glycinate">Magnesium Glycinate</option>
+          <option value="Zinc Sulfate">Zinc Sulfate</option>
+          <option value="Folic Acid">Folic Acid</option>
+          <option value="N-Acetyl Cysteine">N-Acetyl Cysteine</option>
+          <option value="Alpha Lipoic Acid">Alpha Lipoic Acid</option>
+        </optgroup>
+        <optgroup label="Solvents &amp; Carriers">
+          <option value="Ethanol">Ethanol</option>
+          <option value="Benzyl Alcohol">Benzyl Alcohol</option>
+          <option value="Benzyl Benzoate">Benzyl Benzoate</option>
+          <option value="PEG 400">PEG 400</option>
+          <option value="MCT Oil">MCT Oil</option>
+          <option value="DMSO">DMSO</option>
+        </optgroup>
+        <optgroup label="Reagents &amp; Buffers">
+          <option value="Sodium Chloride">Sodium Chloride</option>
+          <option value="Sodium Hydroxide">Sodium Hydroxide</option>
+          <option value="Hydrochloric Acid" selected>Hydrochloric Acid</option>
+          <option value="Hydrogen Peroxide">Hydrogen Peroxide</option>
+          <option value="Acetic Acid">Acetic Acid</option>
+          <option value="Sulphuric Acid">Sulphuric Acid</option>
+          <option value="Nitric Acid">Nitric Acid</option>
+          <option value="Potassium Chloride">Potassium Chloride</option>
+          <option value="EDTA">EDTA</option>
+          <option value="Tris-HCl">Tris-HCl</option>
+          <option value="HEPES">HEPES</option>
+          <option value="Phosphate Buffered Saline">Phosphate Buffered Saline</option>
+          <option value="Sodium Phosphate">Sodium Phosphate</option>
+        </optgroup>
+        <option value="Custom...">Custom...</option>
+      </select>
+    </div>
+
+    <div class="control-group" id="customCompoundGroup" style="display:none">
+      <label>Custom Compound Name</label>
+      <input type="text" id="customCompoundInp" placeholder="Placeholder" oninput="updateLabel()">
+    </div>
+
+    <!-- LIQUID-only controls -->
+    <div id="liquidControls">
+    <div class="control-group">
+      <label>Concentration</label>
+      <div style="display:flex;gap:6px">
+        <input type="number" id="concInp" value="0.5" min="0" step="0.01" style="flex:1" oninput="updateLabel()">
+        <select id="concUnit" onchange="updateLabel()" style="width:80px">
+          <option value="M" selected>M</option>
+          <option value="mM">mM</option>
+          <option value="μM">μM</option>
+          <option value="mg/mL">mg/mL</option>
+          <option value="μg/mL">μg/mL</option>
+          <option value="% w/v">% w/v</option>
+          <option value="% v/v">% v/v</option>
+          <option value="U/mL">U/mL</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Volume (mL)</label>
+      <input type="number" id="volInp" value="10" min="1" max="50" oninput="updateLabel()">
+    </div>
+
+    <div class="control-group">
+      <label>Solvent Field Label</label>
+      <select id="solventLabelSel" onchange="handleSolventLabelChange()">
+        <option value="Matrix">Matrix</option>
+        <option value="Solvent">Solvent</option>
+        <option value="Vehicle">Vehicle</option>
+        <option value="Buffer">Buffer</option>
+        <option value="Carrier">Carrier</option>
+        <option value="Diluent">Diluent</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Solvent / Vehicle</label>
+      <select id="vehicleSel" onchange="updateLabel()">
+        <optgroup label="Aqueous">
+          <option value="Water (deionised)" selected>Water (deionised)</option>
+          <option value="Water (double-distilled)">Water (double-distilled)</option>
+          <option value="Phosphate Buffered Saline">Phosphate Buffered Saline</option>
+          <option value="Bacteriostatic Water">Bacteriostatic Water</option>
+          <option value="Sterile Water for Injection">Sterile Water for Injection</option>
+        </optgroup>
+        <optgroup label="Organic Solvents">
+          <option value="Dimethyl Sulfoxide">Dimethyl Sulfoxide</option>
+          <option value="Ethanol">Ethanol</option>
+          <option value="Methanol">Methanol</option>
+          <option value="Acetonitrile">Acetonitrile</option>
+          <option value="Acetone">Acetone</option>
+          <option value="Ethyl Acetate">Ethyl Acetate</option>
+          <option value="Chloroform">Chloroform</option>
+        </optgroup>
+        <optgroup label="Oils">
+          <option value="MCT Oil">MCT Oil</option>
+          <option value="Ethyl Oleate">Ethyl Oleate</option>
+          <option value="Sesame Oil">Sesame Oil</option>
+          <option value="Grapeseed Oil">Grapeseed Oil</option>
+          <option value="Castor Oil">Castor Oil</option>
+        </optgroup>
+        <option value="Custom...">Custom...</option>
+      </select>
+    </div>
+
+    <div class="control-group" id="customVehicleGroup" style="display:none">
+      <label>Custom Vehicle</label>
+      <input type="text" id="customVehicleInp" placeholder="e.g. Olive Oil, Tween-80" oninput="updateLabel()">
+    </div>
+
+    </div><!-- end liquidControls -->
+
+    <!-- POWDER-only controls -->
+    <div id="powderControls" style="display:none">
+    <div class="control-group">
+      <label>Mass</label>
+      <div style="display:flex;gap:6px">
+        <input type="number" id="massInp" value="500" min="0" step="0.1" style="flex:1" oninput="updateLabel()">
+        <select id="massUnit" onchange="updateLabel()" style="width:70px">
+          <option value="mg" selected>mg</option>
+          <option value="g">g</option>
+          <option value="μg">μg</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Purity (optional)</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="number" id="purityInp" value="" min="0" max="100" step="0.1" placeholder="e.g. 98.5" style="flex:1" oninput="updateLabel()">
+        <span style="color:#888;font-size:11px">%</span>
+      </div>
+    </div>
+    </div><!-- end powderControls -->
+
+    <!-- PILLS-only controls -->
+    <div id="pillsControls" style="display:none">
+    <div class="control-group">
+      <label>Count</label>
+      <input type="number" id="pillCountInp" value="30" min="1" oninput="updateLabel()">
+    </div>
+    <div class="control-group">
+      <label>Dose per unit</label>
+      <div style="display:flex;gap:6px">
+        <input type="number" id="pillDoseInp" value="2" min="0" step="0.1" style="flex:1" oninput="updateLabel()">
+        <select id="pillDoseUnit" onchange="updateLabel()" style="width:70px">
+          <option value="mg" selected>mg</option>
+          <option value="μg">μg</option>
+          <option value="g">g</option>
+        </select>
+      </div>
+    </div>
+    </div><!-- end pillsControls -->
+
+    <!-- Shared: dates + lot -->
+    <div class="control-group">
+      <label>Prep Date</label>
+      <input type="date" id="prepDate" oninput="updateLabel()">
+    </div>
+
+    <div class="control-group">
+      <label>Shelf Life (months)</label>
+      <input type="number" id="shelfLife" value="12" min="1" max="36" oninput="updateLabel()">
+    </div>
+
+    <div class="control-group">
+      <label>Lot / Ref No. (optional)</label>
+      <input type="text" id="lotInp" placeholder="Placeholder" oninput="updateLabel()">
+    </div>
+
+    <div class="control-group">
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:2;min-width:0">
+          <label style="display:block;margin-bottom:4px">
+            <select id="instrTypeSel" onchange="updateLabel()" style="font-size:11px;padding:2px 4px;background:#2a2a2a;color:#ccc;border:1px solid #555;border-radius:3px">
+              <option value="instructions">Instructions</option>
+              <option value="route">Route of Admin</option>
+            </select>
+          </label>
+          <select id="instrPresetSel" onchange="handleInstrPreset()" style="width:100%;margin-bottom:4px">
+            <option value="">— None —</option>
+            <option value="Subcutaneous (SC)">Subcutaneous (SC)</option>
+            <option value="Intramuscular (IM)">Intramuscular (IM)</option>
+            <option value="SC or IM">SC or IM</option>
+            <option value="Intravenous (IV)">Intravenous (IV)</option>
+            <option value="Topical">Topical</option>
+            <option value="Oral">Oral</option>
+            <option value="Sublingual">Sublingual</option>
+            <option value="Rectal">Rectal</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input type="text" id="instructionsInp" placeholder="Custom instructions…" oninput="updateLabel()" style="display:none">
+        </div>
+        <div style="flex:1;min-width:0">
+          <label>Storage Temp</label>
+          <select id="storageTempSel" onchange="handleStoragePreset()" style="width:100%;margin-bottom:4px">
+            <option value="">— None —</option>
+            <option value="−80°C">−80°C</option>
+            <option value="−20°C">−20°C</option>
+            <option value="2–8°C">2–8°C</option>
+            <option value="15–25°C (RT)">15–25°C (RT)</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input type="text" id="storageTemp" placeholder="Custom temp…" oninput="updateLabel()" style="display:none">
+        </div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>GHS Hazard Pictograms</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="ghsCheckboxes"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR SECTION -->
+  <div class="controls-section">
+    <div class="section-label" style="margin-bottom:0">Bottom Bar Text</div>
+
+    <div class="control-group">
+      <label>Left side</label>
+      <select id="bottomLeftSel" onchange="bottomBarUserEdited=true;handleBottomSel('left')">
+        <option value="Store as indicated" selected>Store as indicated</option>
+        <option value="Cool · Dark · Upright">Cool · Dark · Upright</option>
+        <option value="Store Below 25°C">Store Below 25°C</option>
+        <option value="Refrigerate 2–8°C">Refrigerate 2–8°C</option>
+        <option value="Keep Frozen">Keep Frozen</option>
+        <option value="Protect From Light">Protect From Light</option>
+        <option value="Shake Before Use">Shake Before Use</option>
+        <option value="Custom...">Custom...</option>
+      </select>
+    </div>
+
+    <div class="control-group" id="bottomLeftCustomGroup" style="display:none">
+      <label>Custom Left Text</label>
+      <input type="text" id="bottomLeftCustom" placeholder="max ~20 chars" oninput="updateLabel()">
+    </div>
+
+    <div class="control-group">
+      <label>Right side</label>
+      <select id="bottomRightSel" onchange="bottomBarUserEdited=true;handleBottomSel('right')">
+        <option value="Research Use Only" selected>Research Use Only</option>
+        <option value="Not for Clinical Use">Not for Clinical Use</option>
+        <option value="For Research Use Only">For Research Use Only</option>
+        <option value="Personal Use Only">Personal Use Only</option>
+        <option value="DIY Compounded">DIY Compounded</option>
+        <option value="Not for Resale">Not for Resale</option>
+        <option value="Custom...">Custom...</option>
+      </select>
+    </div>
+
+    <div class="control-group" id="bottomRightCustomGroup" style="display:none">
+      <label>Custom Right Text</label>
+      <input type="text" id="bottomRightCustom" placeholder="max ~20 chars" oninput="updateLabel()">
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:4px">
+    <button class="btn" onclick="window.print()">Print Label</button>
+    <button class="btn secondary" id="exportPngBtn" onclick="exportPng()">Export PNG</button>
+    <button class="btn secondary" onclick="resetToDefaults()" style="color:#ff6b6b;border-color:#ff6b6b" title="Clear saved state and reset all fields to defaults">Reset</button>
+  </div>
+
+</div>
+
+<script>
+/* =====================================================================
+   CONFIG — edit this block to customise the generator
+   ===================================================================== */
+
+const CONFIG = {
+
+  /* -- Default label size ---------------------------------------------- */
+  /* Set the default size preset id, or 'custom' + labelWidth/labelHeight  */
+  defaultSize: '55x32',
+
+  /* -- Label size presets ---------------------------------------------- */
+  /* Add your own entries: { id, name, w (mm), h (mm), scale }            */
+  /* scale: how much to enlarge for screen preview (2.5–3.5 is comfortable)*/
+  labelSizes: [
+    // ── Vial / tube labels ─────────────────────────────────────────────
+    { id: '55x32',    name: '55 × 32 mm — standard vial',           w:  55, h:  32, scale: 2.8, group: 'Vial / Tube' },
+    { id: '70x35',    name: '70 × 35 mm — large vial',              w:  70, h:  35, scale: 2.4, group: 'Vial / Tube' },
+    { id: '50x25',    name: '50 × 25 mm — small vial',              w:  50, h:  25, scale: 3.0, group: 'Vial / Tube' },
+    { id: '38x19',    name: '38 × 19 mm — micro vial',              w:  38, h:  19, scale: 3.5, group: 'Vial / Tube' },
+    // ── Avery / sheet label equivalents (UK & international) ──────────
+    { id: '63.5x38',  name: '63.5 × 38.1 mm — address / LP21',     w:63.5, h:38.1, scale: 2.4, group: 'Sheet Labels (Avery / LP)' },
+    { id: '48.9x29',  name: '48.9 × 29.6 mm — multi-purpose / LP36',w:48.9,h:29.6, scale: 2.8, group: 'Sheet Labels (Avery / LP)' },
+    { id: '63.5x29',  name: '63.5 × 29.6 mm — filing / LP27',      w:63.5, h:29.6, scale: 2.6, group: 'Sheet Labels (Avery / LP)' },
+    { id: '99.1x38',  name: '99.1 × 38.1 mm — filing / general',   w:99.1, h:38.1, scale: 1.8, group: 'Sheet Labels (Avery / LP)' },
+    { id: '99.1x67',  name: '99.1 × 67.7 mm — 8-up parcel',        w:99.1, h:67.7, scale: 1.6, group: 'Sheet Labels (Avery / LP)' },
+    // ── Shipping / parcel labels ───────────────────────────────────────
+    { id: '100x150',  name: '100 × 150 mm — shipping 4″×6″',        w: 100, h: 150, scale: 1.0, group: 'Shipping / Parcel' },
+    { id: '99.1x139', name: '99.1 × 139 mm — 4-up / A6 parcel',    w:99.1, h: 139, scale: 1.0, group: 'Shipping / Parcel' },
+    { id: '105x148',  name: '105 × 148 mm — A6 parcel',             w: 105, h: 148, scale: 1.0, group: 'Shipping / Parcel' },
+    // ── Bag / bottle / full sheet ──────────────────────────────────────
+    { id: '100x50',   name: '100 × 50 mm — bag / bottle',           w: 100, h:  50, scale: 1.8, group: 'Large / Full Sheet' },
+    { id: '210x297',  name: '210 × 297 mm — full A4 sheet',         w: 210, h: 297, scale: 0.5, group: 'Large / Full Sheet' },
+    // ── Custom ────────────────────────────────────────────────────────
+    { id: 'custom',   name: 'Custom…',                               w:  55, h:  32, scale: 2.8, group: 'Custom' },
+  ],
+
+  /* -- Brand defaults -------------------------------------------------- */
+  brandName:    'Your Brand',
+  brandSubtext: 'subtext here',
+  accentColor:  '#FF6600',
+
+  /* -- Base path for GHS image files ------------------------------------ */
+  /* Set this to the folder containing your GHS images.                  */
+  /* e.g. 'ghs/' or '/assets/ghs/' — leave as '' to use full paths.      */
+  ghsImagePath: 'ghs/',
+
+  /* -- Default logo shown before any logo is uploaded ------------------- */
+  /* Paste a PNG data URI here to show your logo by default.             */
+  /* Format: 'data:image/png;base64,ABC123...'                           */
+  /* Leave as empty string '' for no default logo.                       */
+  logoPlaceholder: '',
+
+  /* -- Joey's colour swatches ----------------------------------------- */
+  joeyColours: [
+    { hex: '#8B1A1A', name: 'Carmine' },
+    { hex: '#1E2A35', name: 'Andromeda Navy' },
+    { hex: '#FF6600', name: 'Safety Orange' },
+  ],
+
+  /* -- GHS hazard pictogram symbols ------------------------------------ */
+  /* Two ways to supply each icon:                                        */
+  /*   1. img: '/ghs/flammable.png'  — serve a file from your server.    */
+  /*      Any image format works (PNG, SVG file, WebP).                   */
+  /*      If img is set it takes priority; path is ignored.               */
+  /*   2. path: `<svg path markup>`  — inline SVG fallback (default).     */
+  /* To add server images later, just add  img: '/path/to/file'  to any  */
+  /* symbol entry and drop the image file on the server at that path.    */
+  ghsSymbols: [
+    {
+      id: 'flammable', label: 'Flammable',
+      /* img: '/ghs/flammable.png', */
+      path: `<path d="M8 2c0 2-1.5 2.5-1.5 4.5 0 .8.5 1.5 1 1.5-.5-1 0-1.5.5-2 .3 1.2 1 2 1 3.5C9 11.3 7.5 13 6 13c-2.2 0-3.5-1.5-3.5-3.5 0-3 2.5-4.5 2.5-7 1 .5 1.5 1.5 1.5 2.5 1-1 1.5-2.5 1.5-3z" fill="#c00"/>`
+    },
+    {
+      id: 'oxidising', label: 'Oxidising',
+      /* img: '/ghs/oxidising.png', */
+      path: `<circle cx="8" cy="8" r="4" fill="none" stroke="#c00" stroke-width="1.5"/><path d="M8 4v2M8 10v2M4 8h2M10 8h2" stroke="#c00" stroke-width="1.5"/><circle cx="8" cy="8" r="1.5" fill="#c00"/>`
+    },
+    {
+      id: 'explosive', label: 'Explosive',
+      /* img: '/ghs/explosive.png', */
+      path: `<path d="M8 2l1 3h3l-2.5 2 1 3L8 8.5 5.5 10l1-3L4 5h3z" fill="#c00"/>`
+    },
+    {
+      id: 'toxic', label: 'Toxic',
+      /* img: '/ghs/toxic.png', */
+      path: `<circle cx="8" cy="6" r="2.5" fill="#c00"/><path d="M5 10c0-1.7 1.3-3 3-3s3 1.3 3 3M6 4.5L4 3M10 4.5L12 3" stroke="#c00" stroke-width="1.5" fill="none"/>`
+    },
+    {
+      id: 'corrosive', label: 'Corrosive',
+      /* img: '/ghs/corrosive.png', */
+      path: `<path d="M4 5h3v1.5c0 2-2 2.5-2 5h2M9 5h3v1.5c0 2-2 2.5-2 5h2M6 11H5M11 11h-1" stroke="#c00" stroke-width="1.2" fill="none"/><path d="M4 5c.5-1.5 2-2 2-2s.5 1 1 1 .5-1 1-1 1.5.5 2 2" stroke="#c00" stroke-width="1" fill="none"/>`
+    },
+    {
+      id: 'harmful', label: 'Harmful',
+      /* img: '/ghs/harmful.png', */
+      path: `<circle cx="8" cy="6.5" r="2.5" fill="#c00"/><path d="M5.5 11c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5" stroke="#c00" stroke-width="1.5" fill="none"/><path d="M6.5 5.5l1 1 1-1" stroke="white" stroke-width=".8" fill="none"/>`
+    },
+    {
+      id: 'enviro', label: 'Environ.',
+      /* img: '/ghs/enviro.png', */
+      path: `<path d="M8 3c-2 0-4 1.5-4 4s1 3.5 2 4c-.5-1 0-2.5 1.5-3-.5 1.5.5 3 2.5 3 2 0 2.5-1.5 2.5-3 0-2.5-1.5-5-4.5-5z" fill="#c00"/>`
+    },
+    {
+      id: 'gas', label: 'Gas',
+      /* img: '/ghs/gas.png', */
+      path: `<ellipse cx="8" cy="8.5" rx="3" ry="4" fill="none" stroke="#c00" stroke-width="1.3"/><path d="M5.5 5.5C6.5 3.5 9.5 3.5 10.5 5.5" stroke="#c00" stroke-width="1.3" fill="none"/><line x1="8" y1="2.5" x2="8" y2="4.5" stroke="#c00" stroke-width="1.3"/>`
+    },
+    {
+      id: 'health', label: 'Health Haz.',
+      /* img: '/ghs/health.png', */
+      path: `<path d="M8 5l1.5 3h3l-2.5 2 1 3L8 11.5 5 13l1-3L3.5 8h3z" fill="#c00"/>`
+    },
+  ],
+
+};
+/* ===================================================================== */
+
+
+// ===== PERSIST STATE =====
+const STATE_KEY = 'vialLabelState';
+
+const STATE_FIELDS = [
+  'brandNameInp','brandSubInp','accentColor','compoundColor',
+  'compoundSel','customCompoundInp',
+  'concInp','concUnit','volInp','vehicleSel','customVehicleInp',
+  'massInp','massUnit','purityInp',
+  'pillCountInp','pillDoseInp','pillDoseUnit',
+  'prepDate','shelfLife','lotInp','storageTemp','storageTempSel','instructionsInp','instrPresetSel','instrTypeSel',
+  'bottomLeftSel','bottomLeftCustom','bottomRightSel','bottomRightCustom',
+  'labelSizeSel','customW','customH',
+  'solventLabelSel',
+];
+
+function saveState() {
+  const state = { mode: currentMode, labelStyle: currentLabelStyle, bottomBarUserEdited, ghs: {} };
+  STATE_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) state[id] = el.value;
+  });
+  // GHS checkboxes
+  GHS_SYMBOLS.forEach(s => {
+    const el = document.getElementById('ghs_' + s.id);
+    if (el) state.ghs[s.id] = el.checked;
+  });
+  // Uploaded logo (base64 — may be large but fine for localStorage)
+  const logoImg = document.getElementById('logoImg');
+  state.logoSrc = logoImg && logoImg.style.display !== 'none' ? logoImg.src : '';
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function restoreState() {
+  let state;
+  try { state = JSON.parse(localStorage.getItem(STATE_KEY)); } catch(e) {}
+  if (!state) return false;
+
+  STATE_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && state[id] !== undefined) el.value = state[id];
+  });
+
+  // GHS checkboxes (built before restoreState is called)
+  if (state.ghs) {
+    GHS_SYMBOLS.forEach(s => {
+      const el = document.getElementById('ghs_' + s.id);
+      if (el && state.ghs[s.id] !== undefined) el.checked = state.ghs[s.id];
+    });
+  }
+
+  // Mode
+  if (state.mode) setMode(state.mode);
+
+  // Label style
+  if (state.labelStyle) setLabelStyle(state.labelStyle);
+  if (state.bottomBarUserEdited) bottomBarUserEdited = true;
+
+  // Logo
+  if (state.logoSrc) {
+    const logoImg = document.getElementById('logoImg');
+    logoImg.src = state.logoSrc;
+    logoImg.style.display = '';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+    document.getElementById('uploadPreview').src = state.logoSrc;
+    document.getElementById('uploadPreview').style.display = 'block';
+    document.getElementById('uploadLabel').textContent = 'Saved logo';
+    document.getElementById('clearLogoBtn').style.display = '';
+  }
+
+  // Accent colour CSS var
+  const accent = document.getElementById('accentColor').value;
+  document.documentElement.style.setProperty('--accent', accent);
+
+  // Compound colour CSS var
+  const compEl = document.getElementById('compoundColor');
+  if (compEl && compEl.value) {
+    document.documentElement.style.setProperty('--compound-color', compEl.value);
+  }
+
+  // Solvent label key
+  const solLbl = document.getElementById('solventLabelSel');
+  if (solLbl) setMetaKeyText('solventKey', solLbl.value);
+
+  // Label size
+  handleSizeChange();
+
+  // Preset dropdowns — show/hide custom inputs
+  const instrPresetVal = document.getElementById('instrPresetSel').value;
+  document.getElementById('instructionsInp').style.display = instrPresetVal === 'custom' ? '' : 'none';
+  const storagePresetVal = document.getElementById('storageTempSel').value;
+  document.getElementById('storageTemp').style.display = storagePresetVal === 'custom' ? '' : 'none';
+
+  return true;
+}
+
+// ===== DATE HELPERS =====
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function formatDisplay(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function addMonths(dateStr, months) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setMonth(d.getMonth() + parseInt(months));
+  return d.toISOString().split('T')[0];
+}
+
+// ===== MODE =====
+let currentMode = 'liquid';
+
+function setMode(mode) {
+  currentMode = mode;
+  // toggle buttons
+  ['liquid','powder','pills'].forEach(m => {
+    document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1))
+      .classList.toggle('active', m === mode);
+  });
+  // controls
+  document.getElementById('liquidControls').style.display = mode === 'liquid' ? '' : 'none';
+  document.getElementById('powderControls').style.display = mode === 'powder' ? '' : 'none';
+  document.getElementById('pillsControls').style.display = mode === 'pills' ? '' : 'none';
+  // label fields
+  document.getElementById('liquidLabelFields').style.display = mode === 'liquid' ? '' : 'none';
+  document.getElementById('powderLabelFields').style.display = mode === 'powder' ? '' : 'none';
+  document.getElementById('pillsLabelFields').style.display = mode === 'pills' ? '' : 'none';
+  updateLabel();
+}
+
+// ===== LABEL STYLE =====
+let currentLabelStyle = 'lab';
+
+const LABEL_STYLE_TEXT = {
+  lab: {
+    solvent:   'Matrix',
+    lot:       'Batch',
+    made:      'Prep. Date',
+    useBy:     'Expiry',
+    form:      'Form',
+    bottomL:   'Store as indicated',
+    bottomR:   'Research Use Only',
+  },
+  pharmacy: {
+    solvent:   'Solvent',
+    lot:       'Lot / Ref',
+    made:      'Made',
+    useBy:     'Use By',
+    form:      'Form',
+    bottomL:   'Cool · Dark · Upright',
+    bottomR:   'Not for Clinical Use',
+  },
+};
+
+// track whether user has manually changed the bottom bar
+let bottomBarUserEdited = false;
+
+function setLabelStyle(style) {
+  currentLabelStyle = style;
+  const label = document.getElementById('mainLabel');
+  label.classList.remove('style-lab', 'style-pharmacy');
+  label.classList.add('style-' + style);
+
+  // Update toggle buttons
+  document.getElementById('styleLab').classList.toggle('active', style === 'lab');
+  document.getElementById('stylePharmacy').classList.toggle('active', style === 'pharmacy');
+
+  const txt = LABEL_STYLE_TEXT[style];
+
+  // Update solvent label dropdown + label HTML
+  const solLabelSel = document.getElementById('solventLabelSel');
+  if (solLabelSel) setSelectToValue(solLabelSel, txt.solvent);
+  setMetaKeyText('solventKey',  txt.solvent);
+  setMetaKeyText('lotKey',      txt.lot);
+  setMetaKeyText('lotKeyP',     txt.lot);
+  setMetaKeyText('lotKeyPi',    txt.lot);
+  setMetaKeyText('madeKey',     txt.made);
+  setMetaKeyText('madeKeyP',    txt.made);
+  setMetaKeyText('madeKeyPi',   txt.made);
+  setMetaKeyText('useByKey',    txt.useBy);
+  setMetaKeyText('useByKeyP',   txt.useBy);
+  setMetaKeyText('useByKeyPi',  txt.useBy);
+
+  // Update bottom bar defaults only if user hasn't edited them
+  if (!bottomBarUserEdited) {
+    const leftSel  = document.getElementById('bottomLeftSel');
+    const rightSel = document.getElementById('bottomRightSel');
+    // Find or create matching option values
+    setSelectToValue(leftSel,  txt.bottomL);
+    setSelectToValue(rightSel, txt.bottomR);
+  }
+
+  updateLabel();
+  saveState();
+}
+
+function setMetaKeyText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function setSelectToValue(sel, value) {
+  // Try to find the option; if not found fall back to first option
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === value) {
+      sel.value = value;
+      return;
+    }
+  }
+}
+
+// ===== ACCENT COLOUR =====
+const JOEY_COLOURS = CONFIG.joeyColours;
+
+function applyAccent(hex) {
+  document.documentElement.style.setProperty('--accent', hex);
+  document.getElementById('accentColor').value = hex;
+  saveRecentColour(hex);
+  renderRecentSwatches();
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return [r,g,b];
+}
+
+function invertHex(hex) {
+  const [r,g,b] = hexToRgb(hex);
+  return '#' + [255-r,255-g,255-b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+function updatePlaceholderColor(accentHex) {
+  const logoImg = document.getElementById('logoImg');
+  if (logoImg.style.display !== 'none') return; // real logo uploaded, skip
+  const ph = document.getElementById('logoPlaceholder');
+  const inv = invertHex(accentHex);
+  // Render a simple circle as placeholder in the inverted colour
+  ph.innerHTML = `<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="6" cy="6" r="4" stroke="${inv}" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="6" cy="6" r="1.5" fill="${inv}" opacity="0.6"/>
+  </svg>`;
+}
+
+function updateAccentColor() {
+  const color = document.getElementById('accentColor').value;
+  document.documentElement.style.setProperty('--accent', color);
+  updatePlaceholderColor(color);
+  saveRecentColour(color);
+  renderRecentSwatches();
+}
+
+function applyCompoundColor(hex) {
+  document.documentElement.style.setProperty('--compound-color', hex);
+  document.getElementById('compoundColor').value = hex;
+  saveRecentCompoundColour(hex);
+  renderRecentCompoundSwatches();
+  saveState();
+}
+
+function updateCompoundColor() {
+  const color = document.getElementById('compoundColor').value;
+  applyCompoundColor(color);
+}
+
+function saveRecentCompoundColour(hex) {
+  let recent = getRecentCompoundColours();
+  recent = recent.filter(c => c.toLowerCase() !== hex.toLowerCase());
+  recent.unshift(hex);
+  recent = recent.slice(0, 3);
+  try { localStorage.setItem('recentCompoundColors', JSON.stringify(recent)); } catch(e) {}
+}
+
+function getRecentCompoundColours() {
+  try {
+    const stored = localStorage.getItem('recentCompoundColors');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return [];
+}
+
+function renderJoeyCompoundSwatches() {
+  const container = document.getElementById('joeySwatchesCompound');
+  if (!container) return;
+  container.innerHTML = '';
+  JOEY_COLOURS.forEach(c => {
+    container.appendChild(makeSwatch(c.hex, c.name, () => applyCompoundColor(c.hex)));
+  });
+}
+
+function renderRecentCompoundSwatches() {
+  const container = document.getElementById('recentSwatchesCompound');
+  if (!container) return;
+  container.innerHTML = '';
+  const recent = getRecentCompoundColours();
+  if (recent.length === 0) {
+    for (let i = 0; i < 3; i++) {
+      const s = document.createElement('div');
+      s.className = 'swatch empty';
+      s.title = 'No recent colour';
+      container.appendChild(s);
+    }
+    return;
+  }
+  recent.forEach(hex => {
+    container.appendChild(makeSwatch(hex, null, () => applyCompoundColor(hex)));
+  });
+  for (let i = recent.length; i < 3; i++) {
+    const s = document.createElement('div');
+    s.className = 'swatch empty';
+    container.appendChild(s);
+  }
+}
+
+function handleSolventLabelChange() {
+  const val = document.getElementById('solventLabelSel').value;
+  setMetaKeyText('solventKey', val);
+  saveState();
+}
+
+function saveRecentColour(hex) {
+  let recent = getRecentColours();
+  recent = recent.filter(c => c.toLowerCase() !== hex.toLowerCase());
+  recent.unshift(hex);
+  recent = recent.slice(0, 3);
+  try { localStorage.setItem('recentAccentColors', JSON.stringify(recent)); } catch(e) {}
+}
+
+function getRecentColours() {
+  try {
+    const stored = localStorage.getItem('recentAccentColors');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return [];
+}
+
+function makeSwatch(hex, name, onClick) {
+  const s = document.createElement('div');
+  s.className = 'swatch';
+  s.style.background = hex;
+  if (name) s.title = `${name} ${hex}`;
+  else s.title = hex;
+  s.addEventListener('click', onClick);
+  return s;
+}
+
+function renderJoeySwatches() {
+  const container = document.getElementById('joeySwatches');
+  container.innerHTML = '';
+  JOEY_COLOURS.forEach(c => {
+    container.appendChild(makeSwatch(c.hex, c.name, () => applyAccent(c.hex)));
+  });
+}
+
+function renderRecentSwatches() {
+  const container = document.getElementById('recentSwatches');
+  container.innerHTML = '';
+  const recent = getRecentColours();
+  if (recent.length === 0) {
+    // show 3 empty placeholder slots
+    for (let i = 0; i < 3; i++) {
+      const s = document.createElement('div');
+      s.className = 'swatch empty';
+      s.title = 'No recent colour';
+      container.appendChild(s);
+    }
+    return;
+  }
+  recent.forEach(hex => {
+    container.appendChild(makeSwatch(hex, null, () => applyAccent(hex)));
+  });
+  // pad to 3 slots
+  for (let i = recent.length; i < 3; i++) {
+    const s = document.createElement('div');
+    s.className = 'swatch empty';
+    container.appendChild(s);
+  }
+}
+
+function initSwatches() {
+  renderJoeySwatches();
+  renderRecentSwatches();
+  renderJoeyCompoundSwatches();
+  renderRecentCompoundSwatches();
+}
+
+// ===== LOGO UPLOAD =====
+function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const dataUrl = ev.target.result;
+    const logoImg = document.getElementById('logoImg');
+    const placeholder = document.getElementById('logoPlaceholder');
+    const preview = document.getElementById('uploadPreview');
+    const uploadLabel = document.getElementById('uploadLabel');
+
+    logoImg.src = dataUrl;
+    logoImg.style.display = '';
+    placeholder.style.display = 'none';
+
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    uploadLabel.textContent = file.name;
+    document.getElementById('clearLogoBtn').style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLogo() {
+  const logoImg = document.getElementById('logoImg');
+  const placeholder = document.getElementById('logoPlaceholder');
+  const preview = document.getElementById('uploadPreview');
+  const uploadLabel = document.getElementById('uploadLabel');
+
+  logoImg.src = '';
+  logoImg.style.display = 'none';
+  placeholder.style.display = '';
+  preview.src = '';
+  preview.style.display = 'none';
+  uploadLabel.textContent = 'Click to upload logo (PNG/SVG with transparency works best)';
+  document.getElementById('logoFile').value = '';
+  document.getElementById('clearLogoBtn').style.display = 'none';
+
+  // restore placeholder with current accent colour
+  const accent = document.getElementById('accentColor').value;
+  updatePlaceholderColor(accent);
+}
+
+// ===== BOTTOM BAR SELECTS =====
+function handleBottomSel(side) {
+  updateLabel();
+  const selId = side === 'left' ? 'bottomLeftSel' : 'bottomRightSel';
+  const grpId = side === 'left' ? 'bottomLeftCustomGroup' : 'bottomRightCustomGroup';
+  const val = document.getElementById(selId).value;
+  document.getElementById(grpId).style.display = val === 'Custom...' ? '' : 'none';
+}
+
+
+// ===== UPDATE LABEL =====
+function updateLabel() {
+  // Brand name and sub
+  const brandName = document.getElementById('brandNameInp').value || 'Placeholder';
+  const brandSub = document.getElementById('brandSubInp').value || '';
+  document.getElementById('brandNameDisplay').textContent = brandName;
+  const brandSubEl = document.getElementById('brandSubDisplay');
+  brandSubEl.textContent = brandSub;
+  brandSubEl.style.display = brandSub ? '' : 'none';
+
+  // Compound
+  const compSel = document.getElementById('compoundSel').value;
+  const customGrp = document.getElementById('customCompoundGroup');
+  let compound = compSel;
+  if (compSel === 'Custom...') {
+    customGrp.style.display = '';
+    compound = document.getElementById('customCompoundInp').value || 'Custom Compound';
+  } else {
+    customGrp.style.display = 'none';
+  }
+  document.getElementById('compoundDisplay').innerHTML = `<em>${compound}</em>`;
+
+  // Vehicle
+  const vehSel = document.getElementById('vehicleSel').value;
+  const customVehGrp = document.getElementById('customVehicleGroup');
+  let vehicle = vehSel;
+  if (vehSel === 'Custom...') {
+    customVehGrp.style.display = '';
+    vehicle = document.getElementById('customVehicleInp').value || 'Custom Oil';
+  } else {
+    customVehGrp.style.display = 'none';
+  }
+  document.getElementById('vehicleDisplay').textContent = vehicle;
+
+  // Concentration + volume
+  const conc = document.getElementById('concInp').value || '0.5';
+  const concUnit = document.getElementById('concUnit').value;
+  const vol = document.getElementById('volInp').value || '10';
+  document.getElementById('concDisplay').textContent = `${conc} ${concUnit}`;
+  document.getElementById('volDisplay').textContent = `${vol} mL`;
+
+  // Dates
+  const prepDate = document.getElementById('prepDate').value;
+  const shelf = document.getElementById('shelfLife').value || '12';
+  const expDate = prepDate ? addMonths(prepDate, shelf) : '';
+  const prepFmt = formatDisplay(prepDate) || '';
+  const expFmt = formatDisplay(expDate) || '';
+  ['prepDisplay','prepDisplayP','prepDisplayPi'].forEach(id => {
+    document.getElementById(id).textContent = prepFmt;
+  });
+  ['expDisplay','expDisplayP','expDisplayPi'].forEach(id => {
+    document.getElementById(id).textContent = expFmt;
+  });
+  // Show/hide prep/exp meta items
+  ['prepMetaItem','prepMetaItemP','prepMetaItemPi'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = prepFmt ? '' : 'none';
+  });
+  ['expMetaItem','expMetaItemP','expMetaItemPi'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = expFmt ? '' : 'none';
+  });
+
+  // Lot / Ref
+  const lot = document.getElementById('lotInp').value.trim();
+  ['lotDisplay','lotDisplayP','lotDisplayPi'].forEach(id => {
+    document.getElementById(id).textContent = lot;
+  });
+  // Show/hide lot meta items
+  ['lotMetaItem','lotMetaItemP','lotMetaItemPi'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = lot ? '' : 'none';
+  });
+
+  // Powder fields
+  if (currentMode === 'powder') {
+    const mass = document.getElementById('massInp').value || '500';
+    const massUnit = document.getElementById('massUnit').value;
+    const purity = document.getElementById('purityInp').value;
+    document.getElementById('massDisplay').textContent = `${mass} ${massUnit}`;
+    document.getElementById('purityDisplay').textContent = purity ? `${purity}% purity` : 'Powder';
+  }
+
+  // Pills fields
+  if (currentMode === 'pills') {
+    const dose = document.getElementById('pillDoseInp').value || '2';
+    const doseUnit = document.getElementById('pillDoseUnit').value;
+    const count = document.getElementById('pillCountInp').value || '30';
+    document.getElementById('pillDoseDisplay').textContent = `${dose} ${doseUnit}`;
+    document.getElementById('pillCountDisplay').textContent = `× ${count}`;
+  }
+
+  // Instructions + storage temp (side by side row)
+  const instrPreset = document.getElementById('instrPresetSel').value;
+  const instructions = instrPreset && instrPreset !== 'custom'
+    ? instrPreset
+    : document.getElementById('instructionsInp').value.trim();
+  const instrType = document.getElementById('instrTypeSel').value;
+  const storagePreset = document.getElementById('storageTempSel').value;
+  const storageValEarly = storagePreset && storagePreset !== 'custom'
+    ? storagePreset
+    : document.getElementById('storageTemp').value.trim();
+  const instrStorageRow = document.getElementById('instrStorageRow');
+  const prefix = instrType === 'route' ? 'Route:' : '';
+  document.getElementById('instrPrefixDisplay').textContent = prefix;
+  document.getElementById('instrTextDisplay').textContent = instructions;
+  document.getElementById('storageDisplay').textContent = storageValEarly ? ('🌡 ' + storageValEarly) : '';
+  instrStorageRow.style.display = (instructions || storageValEarly) ? 'flex' : 'none';
+
+  // GHS + storage
+  renderGhsIcons();
+
+  // Bottom bar
+  const leftSel = document.getElementById('bottomLeftSel').value;
+  const rightSel = document.getElementById('bottomRightSel').value;
+  const leftTxt = leftSel === 'Custom...'
+    ? (document.getElementById('bottomLeftCustom').value || '')
+    : leftSel;
+  const rightTxt = rightSel === 'Custom...'
+    ? (document.getElementById('bottomRightCustom').value || '')
+    : rightSel;
+
+  const leftEl = document.getElementById('bottomTxtLeft');
+  const rightEl = document.getElementById('bottomTxtRight');
+  const dotEl = document.getElementById('bottomDot');
+
+  leftEl.textContent = leftTxt;
+  rightEl.textContent = rightTxt;
+  // Hide dot if either side is empty
+  dotEl.style.display = (leftTxt && rightTxt) ? '' : 'none';
+  if (!leftTxt) leftEl.style.display = 'none'; else leftEl.style.display = '';
+  if (!rightTxt) rightEl.style.display = 'none'; else rightEl.style.display = '';
+
+  saveState();
+}
+
+
+// ===== GHS PICTOGRAMS =====
+const GHS_SYMBOLS = CONFIG.ghsSymbols;
+
+function ghsIconMarkup(sym, size) {
+  // Returns an img or inline SVG for a GHS symbol.
+  // size: CSS size string e.g. '32px' for selector, '100%' for label
+  if (sym.img) {
+    const src = (CONFIG.ghsImagePath || '') + sym.img;
+    return `<img src="${src}" style="width:${size};height:${size};object-fit:contain;display:block" alt="${sym.label}">`;
+  }
+  return `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="width:${size};height:${size}">
+    <polygon points="8,1 15,8 8,15 1,8" fill="white" stroke="#333" stroke-width="1"/>
+    ${sym.path}
+  </svg>`;
+}
+
+function buildGhsControls() {
+  const container = document.getElementById('ghsCheckboxes');
+  GHS_SYMBOLS.forEach(sym => {
+    const label = document.createElement('label');
+    label.className = 'ghs-check-item';
+    label.title = sym.label;
+    label.innerHTML = `<input type="checkbox" id="ghs_${sym.id}" onchange="updateLabel()">
+      ${ghsIconMarkup(sym, '32px')}
+      <span>${sym.label}</span>`;
+    container.appendChild(label);
+  });
+}
+
+function getCheckedGhs() {
+  return GHS_SYMBOLS.filter(s => {
+    const el = document.getElementById('ghs_' + s.id);
+    return el && el.checked;
+  });
+}
+
+function renderGhsIcons() {
+  // Render icons inline next to compound name (top-right)
+  const inlineRow = document.getElementById('ghsInlineRow');
+  inlineRow.innerHTML = '';
+  const checked = getCheckedGhs();
+  checked.forEach(sym => {
+    const div = document.createElement('div');
+    div.className = 'ghs-inline-icon';
+    div.innerHTML = ghsIconMarkup(sym, '100%');
+    inlineRow.appendChild(div);
+  });
+
+}
+
+// ===== PRESET DROPDOWNS =====
+function handleInstrPreset() {
+  const sel = document.getElementById('instrPresetSel').value;
+  const inp = document.getElementById('instructionsInp');
+  if (sel === 'custom') {
+    inp.style.display = '';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    inp.value = '';
+  }
+  updateLabel();
+  saveState();
+}
+
+function handleStoragePreset() {
+  const sel = document.getElementById('storageTempSel').value;
+  const inp = document.getElementById('storageTemp');
+  if (sel === 'custom') {
+    inp.style.display = '';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    inp.value = '';
+  }
+  updateLabel();
+  saveState();
+}
+
+// ===== RESET TO DEFAULTS =====
+function resetToDefaults() {
+  const confirmed = window.confirm(
+    'Reset all fields to defaults and clear saved state?\n\nThis cannot be undone.'
+  );
+  if (!confirmed) return;
+  try {
+    localStorage.removeItem(STATE_KEY);
+    localStorage.removeItem('recentAccentColors');
+    localStorage.removeItem('recentCompoundColors');
+  } catch(e) {}
+  // Show disclaimer again on next load, then reload
+  location.reload();
+}
+
+// ===== PNG EXPORT =====
+async function exportPng() {
+  const btn = document.getElementById('exportPngBtn');
+  const label = document.getElementById('mainLabel');
+  if (!window.html2canvas) { alert('html2canvas not loaded yet — try again in a moment.'); return; }
+  btn.textContent = 'Exporting…';
+  btn.disabled = true;
+  try {
+    // Render at 4× scale for crisp output
+    const canvas = await html2canvas(label, {
+      scale: 4,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+    });
+    const compound = document.getElementById('compoundDisplay').textContent.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
+    const filename = `label_${compound || 'vial'}.png`;
+    const dataUrl = canvas.toDataURL('image/png');
+    // Use artifact downloads API if available, else fall back to link
+    if (window.claude && window.claude.downloads) {
+      await window.claude.downloads.save({ filename, url: dataUrl });
+    } else {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+    }
+  } catch(e) {
+    alert('Export failed: ' + e.message);
+  } finally {
+    btn.textContent = 'Export PNG';
+    btn.disabled = false;
+  }
+}
+
+// ===== LABEL SIZE =====
+function buildSizeSelect() {
+  const sel = document.getElementById('labelSizeSel');
+  let currentGroup = null;
+  let grpEl = null;
+  CONFIG.labelSizes.forEach(s => {
+    const groupName = s.group || 'Other';
+    if (groupName !== currentGroup) {
+      currentGroup = groupName;
+      grpEl = document.createElement('optgroup');
+      grpEl.label = groupName;
+      sel.appendChild(grpEl);
+    }
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    grpEl.appendChild(opt);
+  });
+  sel.value = CONFIG.defaultSize || '55x32';
+}
+
+function applySize(w, h, scale) {
+  document.documentElement.style.setProperty('--label-w', w + 'mm');
+  document.documentElement.style.setProperty('--label-h', h + 'mm');
+  document.documentElement.style.setProperty('--scale', scale);
+  // Scale fonts and layout proportionally to label height (baseline 32mm)
+  const fs = Math.round((h / 32) * 100) / 100;
+  document.documentElement.style.setProperty('--fs', fs);
+  document.documentElement.style.setProperty('--ls', fs);
+  document.getElementById('scaleNote').textContent = `${w} × ${h} mm`;
+}
+
+function handleSizeChange() {
+  const id = document.getElementById('labelSizeSel').value;
+  const preset = CONFIG.labelSizes.find(s => s.id === id);
+  const isCustom = id === 'custom';
+  document.getElementById('customSizeFields').style.display = isCustom ? '' : 'none';
+  if (preset && !isCustom) {
+    applySize(preset.w, preset.h, preset.scale);
+  } else {
+    applyCustomSize();
+  }
+  saveState();
+}
+
+function applyCustomSize() {
+  const w = parseFloat(document.getElementById('customW').value) || 55;
+  const h = parseFloat(document.getElementById('customH').value) || 32;
+  // Auto-calculate a sensible preview scale so label fits on screen
+  const scale = Math.min(3.5, Math.max(1.5, Math.round((160 / h) * 10) / 10));
+  applySize(w, h, scale);
+  saveState();
+}
+
+// ===== INIT =====
+// Apply CONFIG defaults first
+document.getElementById('brandNameInp').value  = CONFIG.brandName;
+document.getElementById('brandSubInp').value   = CONFIG.brandSubtext;
+document.getElementById('accentColor').value   = CONFIG.accentColor;
+document.documentElement.style.setProperty('--accent', CONFIG.accentColor);
+document.getElementById('compoundColor').value = CONFIG.accentColor;
+document.documentElement.style.setProperty('--compound-color', CONFIG.accentColor);
+document.getElementById('prepDate').value = todayStr();
+
+// Render logo placeholder from CONFIG
+const ph = document.getElementById('logoPlaceholder');
+if (CONFIG.logoPlaceholder && CONFIG.logoPlaceholder.trim().startsWith('data:')) {
+  ph.innerHTML = `<img src="${CONFIG.logoPlaceholder}" style="width:14px;height:18px;object-fit:contain">`;
+} else {
+  ph.innerHTML = '';
+}
+
+buildGhsControls();
+buildSizeSelect();
+
+// Apply lab style as default before restoring (restoreState may override)
+setLabelStyle('lab');
+
+// Restore saved state (overrides CONFIG defaults if present)
+restoreState();
+
+updateLabel();
+initSwatches();
+updatePlaceholderColor(document.getElementById('accentColor').value);
+</script>
+
+</body>
+</html>
