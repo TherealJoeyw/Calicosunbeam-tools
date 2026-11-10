@@ -2460,11 +2460,15 @@ function resetToDefaults() {
 async function exportPng() {
   const btn = document.getElementById('exportPngBtn');
   const label = document.getElementById('mainLabel');
+  const scaleWrap = label.closest('.label-scale-wrap');
   if (!window.html2canvas) { alert('html2canvas not loaded yet — try again in a moment.'); return; }
   btn.textContent = 'Exporting…';
   btn.disabled = true;
   try {
     await document.fonts.ready;
+    // html2canvas miscalculates positions of absolutely-placed children (topbar, bottom-bar)
+    // when any ancestor has a CSS transform applied. Temporarily neutralise the scale.
+    if (scaleWrap) { scaleWrap.style.transform = 'none'; scaleWrap.style.marginBottom = '0'; }
     // Convert mm clip-path corners to px so html2canvas handles them correctly
     const wMm = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 55;
     const cornerPx = (label.offsetWidth / wMm) * 2;
@@ -2476,6 +2480,7 @@ async function exportPng() {
       logging: false,
     });
     label.style.clipPath = '';
+    if (scaleWrap) { scaleWrap.style.transform = ''; scaleWrap.style.marginBottom = ''; }
     const compound = document.getElementById('compoundDisplay').textContent.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
     const filename = `label_${compound || 'vial'}.png`;
     const dataUrl = canvas.toDataURL('image/png');
@@ -2489,6 +2494,7 @@ async function exportPng() {
     }
   } catch(e) {
     label.style.clipPath = '';
+    if (scaleWrap) { scaleWrap.style.transform = ''; scaleWrap.style.marginBottom = ''; }
     alert('Export failed: ' + e.message);
   } finally {
     btn.textContent = 'Export PNG';
