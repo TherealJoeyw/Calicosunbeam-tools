@@ -402,10 +402,33 @@
     border: 1px solid #444;
     border-radius: 8px;
     padding: 20px;
-    width: 340px;
+    width: min(720px, calc(100vw - 40px));
     display: flex;
     flex-direction: column;
     gap: 14px;
+  }
+
+  .controls-cols {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .controls-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .controls-col .controls-section {
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .controls { width: calc(100vw - 40px); }
+    .controls-cols { flex-direction: column; }
   }
 
   .controls-section {
@@ -898,8 +921,8 @@
 <!-- CONTROLS -->
 <div class="controls">
 
-  <!-- LABEL STYLE TOGGLE -->
-  <div class="control-group" style="padding-bottom:4px;border-bottom:1px solid #333;margin-bottom:4px">
+  <!-- LABEL STYLE TOGGLE — full-width header -->
+  <div class="control-group" style="padding-bottom:12px;border-bottom:1px solid #444">
     <label>Label Style</label>
     <div class="toggle-row">
       <button class="toggle-btn active" id="styleLab" onclick="setLabelStyle('lab')">Lab / Chemical</button>
@@ -907,7 +930,10 @@
     </div>
   </div>
 
-  <!-- BRAND SECTION -->
+  <div class="controls-cols">
+
+  <!-- LEFT COLUMN: Brand -->
+  <div class="controls-col">
   <div class="section-label" style="margin-bottom:0">Brand</div>
 
   <div class="control-group">
@@ -979,6 +1005,11 @@
       </div>
     </div>
   </div>
+
+  </div><!-- end left col -->
+
+  <!-- RIGHT COLUMN: Content + Bottom Bar + buttons -->
+  <div class="controls-col">
 
   <!-- LABEL CONTENT SECTION -->
   <div class="controls-section">
@@ -1365,6 +1396,9 @@
     <button class="btn secondary" id="exportPngBtn" onclick="exportPng()">Export PNG</button>
     <button class="btn secondary" onclick="resetToDefaults()" style="color:#ff6b6b;border-color:#ff6b6b" title="Clear saved state and reset all fields to defaults">Reset</button>
   </div>
+
+  </div><!-- end right col -->
+  </div><!-- end controls-cols -->
 
 </div>
 
