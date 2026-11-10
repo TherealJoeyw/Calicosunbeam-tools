@@ -83,7 +83,6 @@
     flex-direction: column;
     padding: calc(6.5mm * var(--ls)) calc(3.5mm * var(--ls)) calc(5mm * var(--ls)) calc(3.5mm * var(--ls));
     gap: 0;
-    clip-path: polygon(2mm 0%, calc(100% - 2mm) 0%, 100% 2mm, 100% calc(100% - 2mm), calc(100% - 2mm) 100%, 2mm 100%, 0% calc(100% - 2mm), 0% 2mm);
   }
 
   .label-topbar {
@@ -2378,17 +2377,12 @@ async function exportPng() {
     // html2canvas miscalculates positions of absolutely-placed children (topbar, bottom-bar)
     // when any ancestor has a CSS transform applied. Temporarily neutralise the scale.
     if (scaleWrap) { scaleWrap.style.transform = 'none'; scaleWrap.style.marginBottom = '0'; }
-    // Convert mm clip-path corners to px so html2canvas handles them correctly
-    const wMm = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 55;
-    const cornerPx = (label.offsetWidth / wMm) * 2;
-    label.style.clipPath = `polygon(${cornerPx}px 0%,calc(100% - ${cornerPx}px) 0%,100% ${cornerPx}px,100% calc(100% - ${cornerPx}px),calc(100% - ${cornerPx}px) 100%,${cornerPx}px 100%,0% calc(100% - ${cornerPx}px),0% ${cornerPx}px)`;
     const canvas = await html2canvas(label, {
       scale: 8,
       useCORS: true,
       backgroundColor: null,
       logging: false,
     });
-    label.style.clipPath = '';
     if (scaleWrap) { scaleWrap.style.transform = ''; scaleWrap.style.marginBottom = ''; }
     const compound = document.getElementById('compoundDisplay').textContent.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
     const filename = `label_${compound || 'vial'}.png`;
@@ -2402,7 +2396,6 @@ async function exportPng() {
       link.click();
     }
   } catch(e) {
-    label.style.clipPath = '';
     if (scaleWrap) { scaleWrap.style.transform = ''; scaleWrap.style.marginBottom = ''; }
     alert('Export failed: ' + e.message);
   } finally {
