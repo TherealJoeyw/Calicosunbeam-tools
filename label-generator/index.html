@@ -2329,14 +2329,10 @@ async function exportPng() {
     const compound = document.getElementById('compoundDisplay').textContent.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
     const filename = `label_${compound || 'vial'}.png`;
     const dataUrl = canvas.toDataURL('image/png');
-    if (window.claude && window.claude.downloads) {
-      await window.claude.downloads.save({ filename, url: dataUrl });
-    } else {
-      const link = document.createElement('a');
-      link.download = filename;
-      link.href = dataUrl;
-      link.click();
-    }
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataUrl;
+    link.click();
   } catch(e) {
     if (scaleWrap) { scaleWrap.style.transform = ''; scaleWrap.style.marginBottom = ''; }
     alert('Export failed: ' + e.message);
