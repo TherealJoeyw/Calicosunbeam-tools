@@ -705,7 +705,7 @@
     align-self: flex-start;
   }
   .page-nav a {
-    color: #666;
+    color: var(--accent);
     font-family: 'Special Elite', serif;
     font-size: 10px;
     letter-spacing: 0.12em;
@@ -713,7 +713,7 @@
     text-decoration: none;
     transition: color 0.15s;
   }
-  .page-nav a:hover { color: #bbb; }
+  .page-nav a:hover { color: var(--accent-light); }
 
   @media print {
     body {
@@ -2201,10 +2201,6 @@ function handleSizeChange() {
   const isCustom = id === 'custom';
   document.getElementById('customSizeFields').style.display = isCustom ? '' : 'none';
   if (preset && !isCustom) {
-    const naturalOrient = preset.h > preset.w ? 'portrait' : 'landscape';
-    currentOrientation = naturalOrient;
-    document.getElementById('orientLandscape').classList.toggle('active', naturalOrient === 'landscape');
-    document.getElementById('orientPortrait').classList.toggle('active', naturalOrient === 'portrait');
     applySize(preset.w, preset.h, preset.scale);
   } else {
     applyCustomSize();
