@@ -960,8 +960,6 @@
       <span class="bottom-txt" id="bottomTxtRight">Not for clinical use</span>
     </div>
 
-    <canvas id="printerDotsCanvas" style="display:none;position:absolute;inset:0;width:100%;height:100%;z-index:50;pointer-events:none;opacity:0.2"></canvas>
-
   </div>
   </div>
   <div class="scale-note" id="scaleNote">55 × 32 mm — fits ~quarter of 10mL vial circumference</div>
@@ -1401,13 +1399,6 @@
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="ghsCheckboxes"></div>
     </div>
 
-    <div class="control-group" style="border-top:1px solid #444;padding-top:10px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:11px;color:#ccc">
-        <input type="checkbox" id="printerDotsToggle" onchange="togglePrinterDots()" style="width:auto;accent-color:#FF6600">
-        Printer dot obfuscation
-      </label>
-      <span style="font-size:9px;color:#777;line-height:1.5;margin-top:2px">Adds randomised yellow tracking-dot noise. Invisible at arm's length; disrupts MIC forensics.</span>
-    </div>
   </div>
 
   <!-- BOTTOM BAR SECTION -->
@@ -1608,7 +1599,7 @@ const STATE_FIELDS = [
 ];
 
 function saveState() {
-  const state = { mode: currentMode, bottomBarUserEdited, orientation: currentOrientation, ghs: {}, printerDots: document.getElementById('printerDotsToggle')?.checked || false };
+  const state = { mode: currentMode, bottomBarUserEdited, orientation: currentOrientation, ghs: {} };
   STATE_FIELDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) state[id] = el.value;
@@ -1694,17 +1685,6 @@ function restoreState() {
   document.getElementById('bottomLeftCustomGroup').style.display = bLeftVal === 'Custom...' ? '' : 'none';
   const bRightVal = document.getElementById('bottomRightSel').value;
   document.getElementById('bottomRightCustomGroup').style.display = bRightVal === 'Custom...' ? '' : 'none';
-
-  // Printer dots
-  if (state.printerDots) {
-    const toggle = document.getElementById('printerDotsToggle');
-    if (toggle) {
-      toggle.checked = true;
-      const canvas = document.getElementById('printerDotsCanvas');
-      if (canvas) canvas.style.display = '';
-      drawPrinterDots();
-    }
-  }
 
   return true;
 }
@@ -2110,77 +2090,6 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.font-pick-menu').forEach(m => { m.style.display = 'none'; });
 });
 
-// ===== PRINTER DOT OBFUSCATION =====
-// DocuColor-style 15×8 tile, fully randomised — no real serial number encoded.
-// Yellow dots (#FFFF00), 0.1mm diameter, ~1mm grid, 60% presence probability.
-const MM_TO_PX = 3.7795; // 96 dpi equivalent
-
-function drawPrinterDots() {
-  const label = document.getElementById('mainLabel');
-  const canvas = document.getElementById('printerDotsCanvas');
-  if (!canvas) return;
-
-  // Get physical mm dimensions from CSS vars
-  const style = getComputedStyle(document.documentElement);
-  const wMm = parseFloat(style.getPropertyValue('--label-w')) || 55;
-  const hMm = parseFloat(style.getPropertyValue('--label-h')) || 32;
-
-  const wPx = Math.round(wMm * MM_TO_PX);
-  const hPx = Math.round(hMm * MM_TO_PX);
-
-  canvas.width = wPx;
-  canvas.height = hPx;
-
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, wPx, hPx);
-
-  const dotR = 0.05 * MM_TO_PX;   // 0.1mm diameter → 0.05mm radius
-  const gridMm = 1.0;              // ~1mm between dot centres
-  const gridPx = gridMm * MM_TO_PX;
-  const presenceProb = 0.60;
-
-  // 15×8 tile structure (DocuColor scheme dimensions)
-  const tileCols = 15;
-  const tileRows = 8;
-
-  ctx.fillStyle = '#FFFF00';
-
-  // Fill the canvas with tiled 15×8 grids
-  const tileWPx = tileCols * gridPx;
-  const tileHPx = tileRows * gridPx;
-  const nTilesX = Math.ceil(wPx / tileWPx) + 1;
-  const nTilesY = Math.ceil(hPx / tileHPx) + 1;
-
-  for (let tx = 0; tx < nTilesX; tx++) {
-    for (let ty = 0; ty < nTilesY; ty++) {
-      for (let col = 0; col < tileCols; col++) {
-        for (let row = 0; row < tileRows; row++) {
-          if (Math.random() > presenceProb) continue;
-          const cx = tx * tileWPx + col * gridPx + gridPx / 2;
-          const cy = ty * tileHPx + row * gridPx + gridPx / 2;
-          if (cx > wPx || cy > hPx) continue;
-          ctx.beginPath();
-          ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    }
-  }
-}
-
-function togglePrinterDots() {
-  const on = document.getElementById('printerDotsToggle').checked;
-  const canvas = document.getElementById('printerDotsCanvas');
-  if (!canvas) return;
-  if (on) {
-    canvas.style.display = '';
-    drawPrinterDots();
-  } else {
-    canvas.style.display = 'none';
-  }
-  saveState();
-}
-
 // ===== FONT PICKERS =====
 function applyFontPick(pickerId, ...elementIds) {
   const val = (document.getElementById(pickerId) || {}).value || '';
@@ -2559,8 +2468,6 @@ function applySize(w, h, scale) {
   document.getElementById('scaleNote').textContent = `${lw} × ${lh} mm`;
   const pl = document.getElementById('previewLabel');
   if (pl) pl.textContent = `Label Preview — prints at ${lw} × ${lh} mm`;
-  // Redraw dots if active (canvas dimensions change with label size)
-  if (document.getElementById('printerDotsToggle')?.checked) drawPrinterDots();
 }
 
 function handleSizeChange() {
