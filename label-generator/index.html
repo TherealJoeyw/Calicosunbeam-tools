@@ -509,7 +509,7 @@
     overflow: hidden;
     white-space: nowrap;
   }
-  .font-pick-btn:focus, .font-pick-btn:hover { border-color: var(--accent); }
+  .font-pick-btn:focus, .font-pick-btn:hover { border-color: #FF6600; }
   .font-pick-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .font-pick-arrow { flex-shrink: 0; color: #666; font-size: 8px; }
   .font-pick-menu {
@@ -531,7 +531,7 @@
     cursor: pointer;
     white-space: nowrap;
   }
-  .font-pick-opt:hover, .font-pick-opt.active { background: #333; color: var(--accent); }
+  .font-pick-opt:hover, .font-pick-opt.active { background: #333; color: #FF6600; }
   .font-pick-opt[data-val=""] { font-size: 10px; color: #666; letter-spacing: 0.05em; }
 
   .control-group textarea {
@@ -542,7 +542,7 @@
   .control-group input:focus,
   .control-group select:focus,
   .control-group textarea:focus {
-    border-color: var(--accent);
+    border-color: #FF6600;
   }
 
   .file-upload-area {
@@ -556,7 +556,7 @@
   }
 
   .file-upload-area:hover {
-    border-color: var(--accent);
+    border-color: #FF6600;
   }
 
   .file-upload-area input[type="file"] {
@@ -699,10 +699,10 @@
 
   .ghs-check-item input:checked + svg,
   .ghs-check-item input:checked + img {
-    border-color: var(--accent);
+    border-color: #FF6600;
     background: #fff;
     opacity: 1;
-    box-shadow: 0 0 0 2px var(--accent);
+    box-shadow: 0 0 0 2px #FF6600;
   }
 
   .ghs-check-item span {
@@ -733,8 +733,8 @@
   }
 
   .toggle-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: #FF6600;
+    border-color: #FF6600;
     color: white;
   }
 
@@ -750,7 +750,7 @@
 
   .btn {
     flex: 1;
-    background: var(--accent);
+    background: #FF6600;
     border: none;
     border-radius: 4px;
     color: white;
@@ -762,7 +762,7 @@
     text-transform: uppercase;
   }
 
-  .btn:hover { background: var(--accent-light); }
+  .btn:hover { background: #ff8533; }
 
   .btn.secondary {
     background: #444;
@@ -794,7 +794,7 @@
     align-self: flex-start;
   }
   .page-nav a {
-    color: var(--accent);
+    color: #FF6600;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 10px;
     letter-spacing: 0.12em;
@@ -802,7 +802,7 @@
     text-decoration: none;
     transition: color 0.15s;
   }
-  .page-nav a:hover { color: var(--accent-light); }
+  .page-nav a:hover { color: #ff8533; }
 
   @media print {
     body {
@@ -826,7 +826,7 @@
     <h2 style="margin:0 0 14px;color:#eee;font-size:16px;letter-spacing:0.05em">Disclaimer</h2>
     <p style="margin:0 0 12px">This tool is provided for health &amp; safety and harm reduction purposes only. calicosunbeam.org does not condone or condemn the preparation or use of any substance. The default compounds and routes included in this tool are provided for convenience and do not imply endorsement of their use. Labels generated here are intended to reduce risk through accurate identification and storage information. Use responsibly and in accordance with applicable laws.</p>
     <p style="margin:0 0 20px;color:#aaa"><strong style="color:#ccc">TL;DR:</strong> A label maker. Use it however you like — just make things safer, not more dangerous.</p>
-    <button onclick="document.getElementById('disclaimerOverlay').style.display='none'" style="background:var(--accent,#FF6600);color:#fff;border:none;border-radius:5px;padding:10px 24px;font-size:13px;cursor:pointer;letter-spacing:0.05em;width:100%">I understand — continue</button>
+    <button onclick="document.getElementById('disclaimerOverlay').style.display='none'" style="background:#FF6600;color:#fff;border:none;border-radius:5px;padding:10px 24px;font-size:13px;cursor:pointer;letter-spacing:0.05em;width:100%">I understand — continue</button>
   </div>
 </div>
 
@@ -1218,7 +1218,16 @@
 
     <div class="control-group">
       <label>Volume (mL)</label>
-      <input type="number" id="volInp" value="10" min="1" max="50" oninput="updateLabel()">
+      <div class="input-font-row">
+        <input type="number" id="volInp" value="10" min="1" max="50" oninput="updateLabel()" style="flex:1">
+        <select class="font-pick" id="fontVolume" onchange="updateLabel()">
+          <option value="">— Font —</option>
+          <option value="'IM Fell English SC', serif">Fell SC</option>
+          <option value="'IM Fell English', serif">Fell Eng.</option>
+          <option value="'Special Elite', serif">Typewriter</option>
+          <option value="Helvetica, Arial, sans-serif">Sans</option>
+        </select>
+      </div>
     </div>
 
     <div class="control-group">
@@ -1230,6 +1239,17 @@
         <option value="Buffer">Buffer</option>
         <option value="Carrier">Carrier</option>
         <option value="Diluent">Diluent</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Detail text font <small style="text-transform:none;color:#666;letter-spacing:0;font-size:9px">(vehicle, lot, dates)</small></label>
+      <select class="font-pick" id="fontMeta" onchange="updateLabel()" style="width:100%">
+        <option value="">— Font —</option>
+        <option value="'IM Fell English SC', serif">Fell SC</option>
+        <option value="'IM Fell English', serif">Fell Eng.</option>
+        <option value="'Special Elite', serif">Typewriter</option>
+        <option value="Helvetica, Arial, sans-serif">Sans</option>
       </select>
     </div>
 
@@ -1366,13 +1386,24 @@
     </div>
 
     <div class="control-group">
+      <label>Instr. / storage font</label>
+      <select class="font-pick" id="fontInstr" onchange="updateLabel()" style="width:100%">
+        <option value="">— Font —</option>
+        <option value="'IM Fell English SC', serif">Fell SC</option>
+        <option value="'IM Fell English', serif">Fell Eng.</option>
+        <option value="'Special Elite', serif">Typewriter</option>
+        <option value="Helvetica, Arial, sans-serif">Sans</option>
+      </select>
+    </div>
+
+    <div class="control-group">
       <label>GHS Hazard Pictograms</label>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="ghsCheckboxes"></div>
     </div>
 
     <div class="control-group" style="border-top:1px solid #444;padding-top:10px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:11px;color:#ccc">
-        <input type="checkbox" id="printerDotsToggle" onchange="togglePrinterDots()" style="width:auto;accent-color:var(--accent)">
+        <input type="checkbox" id="printerDotsToggle" onchange="togglePrinterDots()" style="width:auto;accent-color:#FF6600">
         Printer dot obfuscation
       </label>
       <span style="font-size:9px;color:#777;line-height:1.5;margin-top:2px">Adds randomised yellow tracking-dot noise. Invisible at arm's length; disrupts MIC forensics.</span>
@@ -1575,7 +1606,7 @@ const STATE_KEY = 'vialLabelState';
 
 const STATE_FIELDS = [
   'brandNameInp','brandSubInp','accentColor','compoundColor',
-  'fontBrand','fontBrandSub','fontCompound','fontConc','fontFooterLeft','fontFooterRight',
+  'fontBrand','fontBrandSub','fontCompound','fontConc','fontVolume','fontMeta','fontInstr','fontFooterLeft','fontFooterRight',
   'compoundSel','customCompoundInp',
   'concInp','concUnit','volInp','vehicleSel','customVehicleInp',
   'massInp','massUnit','purityInp',
@@ -1667,6 +1698,12 @@ function restoreState() {
   document.getElementById('instructionsInp').style.display = instrPresetVal === 'custom' ? '' : 'none';
   const storagePresetVal = document.getElementById('storageTempSel').value;
   document.getElementById('storageTemp').style.display = storagePresetVal === 'custom' ? '' : 'none';
+
+  // Bottom bar custom groups
+  const bLeftVal = document.getElementById('bottomLeftSel').value;
+  document.getElementById('bottomLeftCustomGroup').style.display = bLeftVal === 'Custom...' ? '' : 'none';
+  const bRightVal = document.getElementById('bottomRightSel').value;
+  document.getElementById('bottomRightCustomGroup').style.display = bRightVal === 'Custom...' ? '' : 'none';
 
   // Printer dots
   if (state.printerDots) {
@@ -2170,12 +2207,32 @@ function applyFontPick(pickerId, ...elementIds) {
   });
 }
 
+function applyFontPickQuery(pickerId, ...selectors) {
+  const val = (document.getElementById(pickerId) || {}).value || '';
+  const label = document.getElementById('mainLabel');
+  if (!label) return;
+  selectors.forEach(sel => {
+    label.querySelectorAll(sel).forEach(el => {
+      if (val) {
+        el.style.setProperty('font-family', val, 'important');
+        el.querySelectorAll('*').forEach(c => c.style.setProperty('font-family', val, 'important'));
+      } else {
+        el.style.removeProperty('font-family');
+        el.querySelectorAll('*').forEach(c => c.style.removeProperty('font-family'));
+      }
+    });
+  });
+}
+
 // ===== UPDATE LABEL =====
 function updateLabel() {
   // Font pickers (fontCompound applied after innerHTML set below)
   applyFontPick('fontBrand', 'brandNameDisplay');
   applyFontPick('fontBrandSub', 'brandSubDisplay');
   applyFontPick('fontConc', 'concDisplay', 'massDisplay', 'pillDoseDisplay');
+  applyFontPick('fontVolume', 'volDisplay', 'pillCountDisplay');
+  applyFontPickQuery('fontMeta', '.meta-val', '.meta-key');
+  applyFontPickQuery('fontInstr', '.instr-display', '.storage-display');
   applyFontPick('fontFooterLeft', 'bottomTxtLeft');
   applyFontPick('fontFooterRight', 'bottomTxtRight');
 
