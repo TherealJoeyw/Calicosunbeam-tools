@@ -35,12 +35,12 @@
     align-items: center;
     padding: 40px 20px;
     gap: 32px;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
   }
 
   h1 {
     color: #ccc;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 14px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -49,7 +49,7 @@
 
   .section-label {
     color: #888;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -461,7 +461,7 @@
     border: 1px solid #555;
     border-radius: 4px;
     color: #eee;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 12px;
     padding: 6px 8px;
     outline: none;
@@ -647,7 +647,7 @@
     transform: translateX(-50%);
     background: #111;
     color: #ccc;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 9px;
     letter-spacing: 0.05em;
     padding: 2px 5px;
@@ -723,7 +723,7 @@
     border: 1px solid #555;
     border-radius: 4px;
     color: #888;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 10px;
     letter-spacing: 0.08em;
     padding: 6px 8px;
@@ -754,7 +754,7 @@
     border: none;
     border-radius: 4px;
     color: white;
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 11px;
     letter-spacing: 0.05em;
     padding: 8px 12px;
@@ -771,7 +771,7 @@
   .btn.secondary:hover { background: #555; }
 
   .scale-note {
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 9px;
     color: #666;
     letter-spacing: 0.05em;
@@ -795,7 +795,7 @@
   }
   .page-nav a {
     color: var(--accent);
-    font-family: 'Special Elite', serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -2160,17 +2160,21 @@ function applyFontPick(pickerId, ...elementIds) {
   elementIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (val) el.style.setProperty('font-family', val, 'important');
-    else el.style.removeProperty('font-family');
+    if (val) {
+      el.style.setProperty('font-family', val, 'important');
+      el.querySelectorAll('*').forEach(c => c.style.setProperty('font-family', val, 'important'));
+    } else {
+      el.style.removeProperty('font-family');
+      el.querySelectorAll('*').forEach(c => c.style.removeProperty('font-family'));
+    }
   });
 }
 
 // ===== UPDATE LABEL =====
 function updateLabel() {
-  // Font pickers
+  // Font pickers (fontCompound applied after innerHTML set below)
   applyFontPick('fontBrand', 'brandNameDisplay');
   applyFontPick('fontBrandSub', 'brandSubDisplay');
-  applyFontPick('fontCompound', 'compoundDisplay');
   applyFontPick('fontConc', 'concDisplay', 'massDisplay', 'pillDoseDisplay');
   applyFontPick('fontFooterLeft', 'bottomTxtLeft');
   applyFontPick('fontFooterRight', 'bottomTxtRight');
@@ -2194,6 +2198,7 @@ function updateLabel() {
     customGrp.style.display = 'none';
   }
   document.getElementById('compoundDisplay').innerHTML = `<em>${compound}</em>`;
+  applyFontPick('fontCompound', 'compoundDisplay');
 
   // Vehicle
   const vehSel = document.getElementById('vehicleSel').value;
