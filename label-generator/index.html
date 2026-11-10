@@ -806,18 +806,7 @@
   }
   .page-nav a:hover { color: #ff8533; }
 
-  @media print {
-    body {
-      background: white;
-      padding: 0;
-    }
-    .controls, h1, .section-label, .scale-note {
-      display: none !important;
-    }
-    .vial-label {
-      break-inside: avoid;
-    }
-  }
+
 </style>
 </head>
 <body>
@@ -840,7 +829,7 @@
 
 <!-- LIVE PREVIEW -->
 <div class="label-wrapper">
-  <div class="section-label" id="previewLabel">Label Preview, prints at 55 × 32 mm</div>
+  <div class="section-label" id="previewLabel">Label Preview — 55 × 32 mm</div>
   <div class="label-scale-wrap">
   <div class="vial-label" id="mainLabel">
 
@@ -1406,8 +1395,7 @@
   </div>
 
   <div class="btn-row" style="margin-top:4px">
-    <button class="btn" onclick="window.print()">Print Label</button>
-    <button class="btn secondary" id="exportPngBtn" onclick="exportPng()">Export PNG</button>
+    <button class="btn" id="exportPngBtn" onclick="exportPng()">Export PNG</button>
     <button class="btn secondary" onclick="resetToDefaults()" style="color:#ff6b6b;border-color:#ff6b6b" title="Clear saved state and reset all fields to defaults">Reset</button>
   </div>
 
@@ -2384,7 +2372,7 @@ function applySize(w, h, scale) {
   document.documentElement.style.setProperty('--ls', fs);
   document.getElementById('scaleNote').textContent = `${lw} × ${lh} mm`;
   const pl = document.getElementById('previewLabel');
-  if (pl) pl.textContent = `Label Preview, prints at ${lw} × ${lh} mm`;
+  if (pl) pl.textContent = `Label Preview — ${lw} × ${lh} mm`;
 }
 
 function handleSizeChange() {
