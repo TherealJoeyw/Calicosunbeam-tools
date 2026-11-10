@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stock Solution Label Generator — calicosunbeam.org</title>
+<title>Stock Solution Label Generator | calicosunbeam.org</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&display=swap');
@@ -824,8 +824,8 @@
   <div style="background:#1e1e1e;border:1px solid #555;border-radius:10px;max-width:480px;width:100%;padding:28px;color:#ccc;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6">
     <h2 style="margin:0 0 14px;color:#eee;font-size:16px;letter-spacing:0.05em">Disclaimer</h2>
     <p style="margin:0 0 12px">This tool is provided for health &amp; safety and harm reduction purposes only. calicosunbeam.org does not condone or condemn the preparation or use of any substance. The default compounds and routes included in this tool are provided for convenience and do not imply endorsement of their use. Labels generated here are intended to reduce risk through accurate identification and storage information. Use responsibly and in accordance with applicable laws.</p>
-    <p style="margin:0 0 20px;color:#aaa"><strong style="color:#ccc">TL;DR:</strong> A label maker. Use it however you like — just make things safer, not more dangerous.</p>
-    <button onclick="document.getElementById('disclaimerOverlay').style.display='none'" style="background:#FF6600;color:#fff;border:none;border-radius:5px;padding:10px 24px;font-size:13px;cursor:pointer;letter-spacing:0.05em;width:100%">I understand — continue</button>
+    <p style="margin:0 0 20px;color:#aaa"><strong style="color:#ccc">TL;DR:</strong> A label maker. Use it however you like. Just make things safer, not more dangerous.</p>
+    <button onclick="document.getElementById('disclaimerOverlay').style.display='none'" style="background:#FF6600;color:#fff;border:none;border-radius:5px;padding:10px 24px;font-size:13px;cursor:pointer;letter-spacing:0.05em;width:100%">I understand, continue</button>
   </div>
 </div>
 
@@ -837,7 +837,7 @@
 
 <!-- LIVE PREVIEW -->
 <div class="label-wrapper">
-  <div class="section-label" id="previewLabel">Label Preview — prints at 55 × 32 mm</div>
+  <div class="section-label" id="previewLabel">Label Preview, prints at 55 × 32 mm</div>
   <div class="label-scale-wrap">
   <div class="vial-label" id="mainLabel">
 
@@ -961,7 +961,7 @@
 
   </div>
   </div>
-  <div class="scale-note" id="scaleNote">55 × 32 mm — fits ~quarter of 10mL vial circumference</div>
+  <div class="scale-note" id="scaleNote">55 × 32 mm, fits ~quarter of 10mL vial circumference</div>
 </div>
 
 <!-- CONTROLS -->
@@ -989,7 +989,7 @@
     <div class="input-font-row">
       <input type="text" id="brandNameInp" value="" placeholder="Placeholder" oninput="updateLabel()">
       <select class="font-pick" id="fontBrand" onchange="updateLabel()">
-        <option value="">— Font —</option>
+        <option value="">Font</option>
         <option value="'IM Fell English SC', serif">Fell SC</option>
         <option value="'IM Fell English', serif">Fell Eng.</option>
         <option value="'Special Elite', serif">Typewriter</option>
@@ -1003,7 +1003,7 @@
     <div class="input-font-row">
       <input type="text" id="brandSubInp" value="" placeholder="Placeholder" oninput="updateLabel()">
       <select class="font-pick" id="fontBrandSub" onchange="updateLabel()">
-        <option value="">— Font —</option>
+        <option value="">Font</option>
         <option value="'IM Fell English SC', serif">Fell SC</option>
         <option value="'IM Fell English', serif">Fell Eng.</option>
         <option value="'Special Elite', serif">Typewriter</option>
@@ -1166,7 +1166,7 @@
         <option value="Custom...">Custom...</option>
       </select>
       <select class="font-pick" id="fontCompound" onchange="updateLabel()">
-        <option value="">— Font —</option>
+        <option value="">Font</option>
         <option value="'IM Fell English SC', serif">Fell SC</option>
         <option value="'IM Fell English', serif">Fell Eng.</option>
         <option value="'Special Elite', serif">Typewriter</option>
@@ -1197,7 +1197,7 @@
           <option value="U/mL">U/mL</option>
         </select>
         <select class="font-pick" id="fontConc" onchange="updateLabel()">
-          <option value="">— Font —</option>
+          <option value="">Font</option>
           <option value="'IM Fell English SC', serif">Fell SC</option>
           <option value="'IM Fell English', serif">Fell Eng.</option>
           <option value="'Special Elite', serif">Typewriter</option>
@@ -1211,7 +1211,7 @@
       <div class="input-font-row">
         <input type="number" id="volInp" value="10" min="1" max="50" oninput="updateLabel()" style="flex:1">
         <select class="font-pick" id="fontVolume" onchange="updateLabel()">
-          <option value="">— Font —</option>
+          <option value="">Font</option>
           <option value="'IM Fell English SC', serif">Fell SC</option>
           <option value="'IM Fell English', serif">Fell Eng.</option>
           <option value="'Special Elite', serif">Typewriter</option>
@@ -1235,7 +1235,7 @@
     <div class="control-group">
       <label>Detail text font <small style="text-transform:none;color:#666;letter-spacing:0;font-size:9px">(vehicle, lot, dates)</small></label>
       <select class="font-pick" id="fontMeta" onchange="updateLabel()" style="width:100%">
-        <option value="">— Font —</option>
+        <option value="">Font</option>
         <option value="'IM Fell English SC', serif">Fell SC</option>
         <option value="'IM Fell English', serif">Fell Eng.</option>
         <option value="'Special Elite', serif">Typewriter</option>
@@ -1347,7 +1347,7 @@
             </select>
           </label>
           <select id="instrPresetSel" onchange="handleInstrPreset()" style="width:100%;margin-bottom:4px">
-            <option value="">— None —</option>
+            <option value="">None</option>
             <option value="Subcutaneous (SC)">Subcutaneous (SC)</option>
             <option value="Intramuscular (IM)">Intramuscular (IM)</option>
             <option value="SC or IM">SC or IM</option>
@@ -1363,7 +1363,7 @@
         <div style="flex:1;min-width:0">
           <label>Storage Temp</label>
           <select id="storageTempSel" onchange="handleStoragePreset()" style="width:100%;margin-bottom:4px">
-            <option value="">— None —</option>
+            <option value="">None</option>
             <option value="−80°C">−80°C</option>
             <option value="−20°C">−20°C</option>
             <option value="2–8°C">2–8°C</option>
@@ -1378,7 +1378,7 @@
     <div class="control-group">
       <label>Instr. / storage font</label>
       <select class="font-pick" id="fontInstr" onchange="updateLabel()" style="width:100%">
-        <option value="">— Font —</option>
+        <option value="">Font</option>
         <option value="'IM Fell English SC', serif">Fell SC</option>
         <option value="'IM Fell English', serif">Fell Eng.</option>
         <option value="'Special Elite', serif">Typewriter</option>
@@ -1411,7 +1411,7 @@
           <option value="Custom...">Custom...</option>
         </select>
         <select class="font-pick" id="fontFooterLeft" onchange="updateLabel()">
-          <option value="">— Font —</option>
+          <option value="">Font</option>
           <option value="'IM Fell English SC', serif">Fell SC</option>
           <option value="'IM Fell English', serif">Fell Eng.</option>
           <option value="'Special Elite', serif">Typewriter</option>
@@ -1438,7 +1438,7 @@
           <option value="Custom...">Custom...</option>
         </select>
         <select class="font-pick" id="fontFooterRight" onchange="updateLabel()">
-          <option value="">— Font —</option>
+          <option value="">Font</option>
           <option value="'IM Fell English SC', serif">Fell SC</option>
           <option value="'IM Fell English', serif">Fell Eng.</option>
           <option value="'Special Elite', serif">Typewriter</option>
@@ -1480,22 +1480,22 @@ const CONFIG = {
   /* scale: how much to enlarge for screen preview (2.5–3.5 is comfortable)*/
   labelSizes: [
     // ── Vial / tube labels ─────────────────────────────────────────────
-    { id: '55x32',    name: '55 × 32 mm — standard vial',           w:  55, h:  32, scale: 2.8, group: 'Vial / Tube' },
-    { id: '70x35',    name: '70 × 35 mm — large vial',              w:  70, h:  35, scale: 2.4, group: 'Vial / Tube' },
-    { id: '50x25',    name: '50 × 25 mm — small vial',              w:  50, h:  25, scale: 3.0, group: 'Vial / Tube' },
+    { id: '55x32',    name: '55 × 32 mm - standard vial',           w:  55, h:  32, scale: 2.8, group: 'Vial / Tube' },
+    { id: '70x35',    name: '70 × 35 mm - large vial',              w:  70, h:  35, scale: 2.4, group: 'Vial / Tube' },
+    { id: '50x25',    name: '50 × 25 mm - small vial',              w:  50, h:  25, scale: 3.0, group: 'Vial / Tube' },
     // ── Avery / sheet label equivalents (UK & international) ──────────
-    { id: '63.5x38',  name: '63.5 × 38.1 mm — address / LP21',     w:63.5, h:38.1, scale: 2.4, group: 'Sheet Labels (Avery / LP)' },
-    { id: '48.9x29',  name: '48.9 × 29.6 mm — multi-purpose / LP36',w:48.9,h:29.6, scale: 2.8, group: 'Sheet Labels (Avery / LP)' },
-    { id: '63.5x29',  name: '63.5 × 29.6 mm — filing / LP27',      w:63.5, h:29.6, scale: 2.6, group: 'Sheet Labels (Avery / LP)' },
-    { id: '99.1x38',  name: '99.1 × 38.1 mm — filing / general',   w:99.1, h:38.1, scale: 1.8, group: 'Sheet Labels (Avery / LP)' },
-    { id: '99.1x67',  name: '99.1 × 67.7 mm — 8-up parcel',        w:99.1, h:67.7, scale: 1.6, group: 'Sheet Labels (Avery / LP)' },
+    { id: '63.5x38',  name: '63.5 × 38.1 mm - address / LP21',     w:63.5, h:38.1, scale: 2.4, group: 'Sheet Labels (Avery / LP)' },
+    { id: '48.9x29',  name: '48.9 × 29.6 mm - multi-purpose / LP36',w:48.9,h:29.6, scale: 2.8, group: 'Sheet Labels (Avery / LP)' },
+    { id: '63.5x29',  name: '63.5 × 29.6 mm - filing / LP27',      w:63.5, h:29.6, scale: 2.6, group: 'Sheet Labels (Avery / LP)' },
+    { id: '99.1x38',  name: '99.1 × 38.1 mm - filing / general',   w:99.1, h:38.1, scale: 1.8, group: 'Sheet Labels (Avery / LP)' },
+    { id: '99.1x67',  name: '99.1 × 67.7 mm - 8-up parcel',        w:99.1, h:67.7, scale: 1.6, group: 'Sheet Labels (Avery / LP)' },
     // ── Shipping / parcel labels ───────────────────────────────────────
-    { id: '100x150',  name: '100 × 150 mm — shipping 4″×6″',        w: 100, h: 150, scale: 1.0, group: 'Shipping / Parcel' },
-    { id: '99.1x139', name: '99.1 × 139 mm — 4-up / A6 parcel',    w:99.1, h: 139, scale: 1.0, group: 'Shipping / Parcel' },
-    { id: '105x148',  name: '105 × 148 mm — A6 parcel',             w: 105, h: 148, scale: 1.0, group: 'Shipping / Parcel' },
+    { id: '100x150',  name: '100 × 150 mm - shipping 4″×6″',        w: 100, h: 150, scale: 1.0, group: 'Shipping / Parcel' },
+    { id: '99.1x139', name: '99.1 × 139 mm - 4-up / A6 parcel',    w:99.1, h: 139, scale: 1.0, group: 'Shipping / Parcel' },
+    { id: '105x148',  name: '105 × 148 mm - A6 parcel',             w: 105, h: 148, scale: 1.0, group: 'Shipping / Parcel' },
     // ── Bag / bottle / full sheet ──────────────────────────────────────
-    { id: '100x50',   name: '100 × 50 mm — bag / bottle',           w: 100, h:  50, scale: 1.8, group: 'Large / Full Sheet' },
-    { id: '210x297',  name: '210 × 297 mm — full A4 sheet',         w: 210, h: 297, scale: 0.5, group: 'Large / Full Sheet' },
+    { id: '100x50',   name: '100 × 50 mm - bag / bottle',           w: 100, h:  50, scale: 1.8, group: 'Large / Full Sheet' },
+    { id: '210x297',  name: '210 × 297 mm - full A4 sheet',         w: 210, h: 297, scale: 0.5, group: 'Large / Full Sheet' },
     // ── Custom ────────────────────────────────────────────────────────
     { id: 'custom',   name: 'Custom…',                               w:  55, h:  32, scale: 2.8, group: 'Custom' },
   ],
@@ -1975,7 +1975,7 @@ function handleBottomSel(side) {
 
 // ===== CUSTOM FONT PICKERS =====
 const LABEL_FONTS = [
-  { val: '', label: '— Font —' },
+  { val: '', label: 'Font' },
   { val: "'IM Fell English SC', serif", label: 'Fell SC' },
   { val: "'IM Fell English', serif",    label: 'Fell Eng.' },
   { val: "'Special Elite', serif",      label: 'Typewriter' },
@@ -2356,7 +2356,7 @@ async function exportPng() {
   const btn = document.getElementById('exportPngBtn');
   const label = document.getElementById('mainLabel');
   const scaleWrap = label.closest('.label-scale-wrap');
-  if (!window.html2canvas) { alert('html2canvas not loaded yet — try again in a moment.'); return; }
+  if (!window.html2canvas) { alert('html2canvas not loaded yet. Try again in a moment.'); return; }
   btn.textContent = 'Exporting…';
   btn.disabled = true;
   try {
@@ -2433,7 +2433,7 @@ function applySize(w, h, scale) {
   document.documentElement.style.setProperty('--ls', fs);
   document.getElementById('scaleNote').textContent = `${lw} × ${lh} mm`;
   const pl = document.getElementById('previewLabel');
-  if (pl) pl.textContent = `Label Preview — prints at ${lw} × ${lh} mm`;
+  if (pl) pl.textContent = `Label Preview, prints at ${lw} × ${lh} mm`;
 }
 
 function handleSizeChange() {
