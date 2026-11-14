@@ -1271,13 +1271,20 @@
       <label>Dose per unit</label>
       <div style="display:flex;gap:6px">
         <input type="number" id="pillDoseInp" value="2" min="0" step="0.1" style="flex:1" oninput="updateLabel()">
-        <select id="pillDoseUnit" onchange="updateLabel()" style="width:70px">
+        <select id="pillDoseUnit" onchange="updateLabel()" style="width:80px">
           <option value="mg" selected>mg</option>
           <option value="μg">μg</option>
           <option value="g">g</option>
+          <option value="IU">IU</option>
+          <option value="">blank</option>
+          <option value="custom">custom…</option>
         </select>
         <select class="font-pick" id="fontPillDose"></select>
       </div>
+    </div>
+    <div class="control-group" id="pillDoseUnitCustomGroup" style="display:none">
+      <label>Custom unit</label>
+      <input type="text" id="pillDoseUnitCustomInp" placeholder="e.g. mcg, units" oninput="updateLabel()">
     </div>
     </div><!-- end pillsControls -->
 
@@ -1524,7 +1531,7 @@ const STATE_FIELDS = [
   'compoundSel','customCompoundInp',
   'concInp','concUnit','volInp','vehicleSel','customVehicleInp',
   'massInp','massUnit','purityInp',
-  'pillCountInp','pillDoseInp','pillDoseUnit','fontMass','fontPillDose',
+  'pillCountInp','pillDoseInp','pillDoseUnit','pillDoseUnitCustomInp','fontMass','fontPillDose',
   'prepDate','shelfLife','lotInp','storageTemp','storageTempSel','instructionsInp','instrPresetSel','instrTypeSel',
   'bottomLeftSel','bottomLeftCustom','bottomRightSel','bottomRightCustom',
   'labelSizeSel','customW','customH',
@@ -2152,9 +2159,18 @@ function updateLabel() {
   // Pills fields
   if (currentMode === 'pills') {
     const dose = document.getElementById('pillDoseInp').value || '2';
-    const doseUnit = document.getElementById('pillDoseUnit').value;
+    const doseUnitSel = document.getElementById('pillDoseUnit').value;
+    const customUnitGrp = document.getElementById('pillDoseUnitCustomGroup');
+    let doseUnit;
+    if (doseUnitSel === 'custom') {
+      customUnitGrp.style.display = '';
+      doseUnit = document.getElementById('pillDoseUnitCustomInp').value || '';
+    } else {
+      customUnitGrp.style.display = 'none';
+      doseUnit = doseUnitSel;
+    }
     const count = document.getElementById('pillCountInp').value || '30';
-    document.getElementById('pillDoseDisplay').textContent = `${dose} ${doseUnit}`;
+    document.getElementById('pillDoseDisplay').textContent = doseUnit ? `${dose} ${doseUnit}` : dose;
     document.getElementById('pillCountDisplay').textContent = `× ${count}`;
   }
 
